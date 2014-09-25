@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ndm2mp4", "ndm2mp4\ndm2mp4.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfkscheduler", "nfkscheduler\nfkscheduler.csproj", "{22520122-FA99-47EF-BAC7-6ADBD70E7370}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfkuploader", "nfkuploader\nfkuploader.csproj", "{E00F8569-3B5E-4F4E-9676-75B6E47E3EFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "helper\Helper.csproj", "{E3350C49-A851-41CE-9BDB-2D2F082C7A18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{22520122-FA99-47EF-BAC7-6ADBD70E7370}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22520122-FA99-47EF-BAC7-6ADBD70E7370}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22520122-FA99-47EF-BAC7-6ADBD70E7370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E00F8569-3B5E-4F4E-9676-75B6E47E3EFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E00F8569-3B5E-4F4E-9676-75B6E47E3EFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E00F8569-3B5E-4F4E-9676-75B6E47E3EFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E00F8569-3B5E-4F4E-9676-75B6E47E3EFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3350C49-A851-41CE-9BDB-2D2F082C7A18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3350C49-A851-41CE-9BDB-2D2F082C7A18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3350C49-A851-41CE-9BDB-2D2F082C7A18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3350C49-A851-41CE-9BDB-2D2F082C7A18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

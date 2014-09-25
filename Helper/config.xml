@@ -1,0 +1,71 @@
+﻿<?xml version="1.0"?>
+<configuration>
+  <!-- NDM2MP4 -->
+  <!-- full path to nfk.exe -->
+  <GameExeFile>D:\Games\NFK\NFK.exe</GameExeFile>
+  <!-- autoexec commands for tuning view -->
+  <Autoexec>
+shownick 1
+drawtime 1
+cameratype 1
+drawfps 0
+  </Autoexec>
+  
+  <RecordAudio>true</RecordAudio>
+  <!-- number of audio device (starting from 0) -->
+  <AudioDevice>0</AudioDevice>
+
+  <VideoWidth>854</VideoWidth>
+  <VideoHeight>480</VideoHeight>
+  <VideoFps>25</VideoFps>
+  <VideoBitrate>15000000</VideoBitrate>
+  <VideoPaddingTop>26</VideoPaddingTop>
+  <VideoPaddingLeft>3</VideoPaddingLeft>
+
+  <!-- hex value http://bit.ly/ZWkGpM -->
+  <ProcessorAffinity>1</ProcessorAffinity>
+  <!-- numeric value 0-5 http://bit.ly/Urr7Rn -->
+  <ProcessorPriority>0</ProcessorPriority>
+  <!-- if game process is hang up then wait for X seconds and stop all work and exit -->
+  <GameProcessTimeout>30</GameProcessTimeout>
+  <!-- keep game window on top -->
+  <AlwaysOnTop>true</AlwaysOnTop>
+
+
+  <!-- NFKSCHEDULER -->
+  <!-- where to save videos, demos and temp files -->
+  <Ndm2Mp4File>ndm2mp4.exe</Ndm2Mp4File>      
+  <TempDir>tempdir</TempDir>
+
+  <!-- needforkill.ru API -->
+  <AppId>a</AppId>
+  <ApiKey>helloworld</ApiKey>
+  <GetDemoUrl>http://127.0.0.1:3000/getdemo/?apikey={apikey}&amp;appid={appid}</GetDemoUrl>
+  <SetVideoUrl>http://127.0.0.1:3000/setvideo/?apikey={apikey}&amp;appid={appid}</SetVideoUrl>
+
+
+  <!-- NFKUPLOADER -->
+  <!-- youtube video details -->
+  <VideoTitle>{nickname}{vsnickname} ({gametype}, {mapname})</VideoTitle>
+  <VideoDescription>
+    Match URL: http://nfk.pro2d.ru/match/{demoid}
+    Download Demo: {demourl}
+
+    Credits:
+    {playerlist}
+  </VideoDescription>
+  <VideoKeyWords>need for kill, nfk, action, arcade, shooter, dynamic, massacre</VideoKeyWords>
+
+  <!-- youtube.com credentials -->
+  <YoutubeUserName>CHANGE</YoutubeUserName>
+  <YoutubePassword>CHANGE</YoutubePassword>
+  <YoutubeAppName>CHANGE</YoutubeAppName>
+  <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
+
+  <!-- mega.co.nz credentials -->
+  <!-- upload demo to mega? if no source demo url will be in video description -->
+  <MegaUpload>true</MegaUpload>
+  <MegaUserName>CHANGE</MegaUserName>
+  <MegaPassword>CHANGE</MegaPassword>
+
+</configuration>
