@@ -28,20 +28,28 @@ namespace ndm2mp4
         /// </summary>
         static DateTime lastImageTime = DateTime.Now;
 
-        static bool isOnTop = false; // flag the game window was set on top
+        static bool isGameRunning = false; // flag the game window is shown
+
+        static IntPtr dxWindowHandle; // game process main windows handle
 
         static void Main(string[] args)
         {
             Config.Load();
             CmdArgs.ParseOptions(args);
 
-            var initDemoPath = Config.DemoFile;
-            // replace path to demo file
-            Config.DemoFile = Path.Combine(Config.BaseNfkPath, Path.Combine("demos", Path.GetFileName(Config.DemoFile)));
+            var defaultDemoFile = Path.Combine(Config.BaseNfkPath, Path.Combine("demos", "demo.ndm")); // basenfk\demos\demo.ndm
+            var basenfkDemoFile = Path.Combine(Config.BaseNfkPath, Path.Combine("demos", Path.GetFileName(Config.DemoFile))); // basenfk\demos\{DEMOFILE}.ndm
 
-            // copy demo if it is outside demo directory
-            if (!File.Exists(Config.DemoFile))
-                File.Copy(initDemoPath, Config.DemoFile);
+            // copy demo to outside demo directory
+            if (File.Exists(Config.DemoFile))
+                File.Copy(Config.DemoFile, defaultDemoFile, true);
+            else if (File.Exists(basenfkDemoFile))
+                File.Copy(basenfkDemoFile, defaultDemoFile, true);
+            else
+            {
+                Log.Error("Could not file demo in paths: \"{0}\" or \"{1}\"");
+                Environment.Exit(1);
+            }
 
             // remove all images in \basenfk
             Log.Info("Clearing "+ Config.BaseNfkPath + " from old images ");
@@ -51,11 +59,11 @@ namespace ndm2mp4
 
             // write autoexec.cfg
             var sb = new StringBuilder();
-            sb.AppendFormat("demo {0}\n", Config.DemoFile);
+            sb.AppendFormat("demo {0}\n", defaultDemoFile);
             sb.AppendFormat("r_mode {0} {1}", Config.Data.VideoWidth, Config.Data.VideoHeight); // set nfk window size (it works only in special modified nfk.exe)
-            sb.AppendFormat("followplayer {0}", Config.PlayerNumber); // set player to follow camera
             sb.AppendFormat(@"
 {0}
+bind n nextplayer
 avi_start
 ", Config.Data.Autoexec);
 
@@ -122,6 +130,7 @@ avi_start
         /// <param name="e"></param>
         private static void nfkProcess_Exited(object sender, EventArgs e)
         {
+            isGameRunning = false;
             if (!movieProcessing)
             {
                 Log.Error("Game process was killed from outside");
@@ -141,14 +150,27 @@ avi_start
 
         private static void OnImageCreated(object sender, FileSystemEventArgs e)
         {
-            // set on top one time, when first image file is created
-            if (Config.Data.AlwaysOnTop)
+            if (!isGameRunning)
             {
-                if (!isOnTop)
-                {
+                // set on top one time, when first image file is created
+                if (Config.Data.AlwaysOnTop)
                     Win32.SetWindowOnTop(nfkProcess.MainWindowHandle);
-                    isOnTop = true;
+
+                // select directx main window
+                dxWindowHandle = Win32.FindWindow("Tmainform", "Need For Kill");
+                if (dxWindowHandle == IntPtr.Zero)
+                {
+                    Log.Error("Could not find main window (Class: \"Tmainform\", Caption: \"Need For Kill\")");
+                    Environment.Exit(1);
                 }
+
+                // switch player camera
+                for (int i = 1; i < Config.PlayerNumber; i++)
+                    NfkSendKey("n");
+
+                isGameRunning = true;
+
+                // start record video here
             }
 
             int number;
@@ -197,6 +219,11 @@ avi_start
         }
 
 
+        private static void NfkSendKey(string keys)
+        {
+            Win32.SetForegroundWindow(dxWindowHandle); // set focus
+            System.Windows.Forms.SendKeys.SendWait(keys); // send keys
+        }
 
     }
 }
