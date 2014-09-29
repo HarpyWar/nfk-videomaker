@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
   <Nodes>
-    <Node Id="nfkscheduler" Label="nfkscheduler" Category="Project" />
+    <Node Id="ndmscheduler" Label="ndmscheduler" Category="Project" />
     <Node Id="MegaApiClient 1.0.4" Label="MegaApiClient 1.0.4" Category="Package" />
     <Node Id="Newtonsoft.Json 6.0.1" Label="Newtonsoft.Json 6.0.1" Category="Package" />
     <Node Id="ndm2mp4" Label="ndm2mp4" Category="Project" />
@@ -9,7 +9,7 @@
   </Nodes>
   <Links>
     <Link Source="MegaApiClient 1.0.4" Target="Newtonsoft.Json 6.0.1" Category="Package Dependency" />
-    <Link Source="nfkscheduler" Target="MegaApiClient 1.0.4" Category="Installed Package" />
+    <Link Source="ndmscheduler" Target="MegaApiClient 1.0.4" Category="Installed Package" />
     <Link Source="ndm2mp4" Target="Newtonsoft.Json 5.0.6" Category="Installed Package" />
   </Links>
   <Categories>

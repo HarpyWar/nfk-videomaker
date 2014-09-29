@@ -16,9 +16,10 @@ namespace Helper
     public class APIClient
     {
 
-        public static bool SetVideo(string video, string appId)
+        public static bool SetVideo(int demoid, string video, string appId)
         {
             var url = Config.Data.SetVideoUrl
+                .Replace("{demoid}", demoid.ToString())
                 .Replace("{apikey}", Config.Data.ApiKey)
                 .Replace("{appid}", appId);
             try
@@ -40,7 +41,11 @@ namespace Helper
             return false;
         }
 
-
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static  DateTime UnixTimeToDateTime(double seconds)
+        {
+            return Epoch.AddSeconds(seconds);
+        }
     }
 
 }

@@ -12,6 +12,7 @@ namespace Helper
     [System.Xml.Serialization.XmlRoot("configuration")]
     public class Config 
     {
+
         public static Config Data { get; set; }
 
         public static void Load()
@@ -52,10 +53,14 @@ namespace Helper
         }
         private static string _logFile;
 
+        [System.Xml.Serialization.XmlElement("LogInfo")]
+        public bool LogInfo { get; set; }
+
+        [System.Xml.Serialization.XmlElement("LogError")]
+        public bool LogError { get; set; }
 
 
-
-#region ndm2mp4
+#region ndm2video
 
         [System.Xml.Serialization.XmlElement("GameExeFile")]
         public string GameExeFile { get; set; }
@@ -63,11 +68,19 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("Autoexec")]
         public string Autoexec { get; set; }
 
-        [System.Xml.Serialization.XmlElement("RecordAudio")]
-        public bool RecordAudio { get; set; }
+        [System.Xml.Serialization.XmlElement("ExtraTime")]
+        public int ExtraTime { get; set; }
 
-        [System.Xml.Serialization.XmlElement("AudioDevice")]
-        public int AudioDevice { get; set; }
+        [System.Xml.Serialization.XmlElement("VideoOutputExtension")]
+        public string VideoOutputExtension { get; set; }
+
+        [System.Xml.Serialization.XmlElement("ExternalVideoCapture")]
+        public bool ExternalVideoCapture { get; set; }
+
+
+        [System.Xml.Serialization.XmlArray("ExternalToolRoundTrip")]
+        public Round[] ExternalToolRoundTrip { get; set; }
+
 
         [System.Xml.Serialization.XmlElement("VideoWidth")]
         public int VideoWidth { get; set; }
@@ -88,11 +101,11 @@ namespace Helper
         public int VideoPaddingLeft { get; set; }
 
         [System.Xml.Serialization.XmlElement("ProcessorAffinity")]
-        public int ProcessorAffinity
+        public string ProcessorAffinity
         {
             get
             {
-                return _processorAffinity;
+                return _processorAffinity.ToString();
             }
             set
             {
@@ -147,12 +160,14 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("AlwaysOnTop")]
         public bool AlwaysOnTop { get; set; }
 
+
+
 #endregion
 
-#region nfkscheduler
+#region ndmscheduler
 
-        [System.Xml.Serialization.XmlElement("Ndm2Mp4File")]
-        public string Ndm2Mp4File { get; set; }
+        [System.Xml.Serialization.XmlElement("Ndm2VideoFile")]
+        public string Ndm2VideoFile { get; set; }
 
 
         [System.Xml.Serialization.XmlElement("TempDir")]
@@ -187,7 +202,7 @@ namespace Helper
 
 #endregion
 
-#region nfkuploader
+#region ndmuploader
 
         [System.Xml.Serialization.XmlElement("VideoTitle")]
         public string VideoTitle { get; set; }
@@ -197,6 +212,15 @@ namespace Helper
 
         [System.Xml.Serialization.XmlElement("VideoKeyWords")]
         public string VideoKeyWords { get; set; }
+
+        [System.Xml.Serialization.XmlElement("VideoMimeType")]
+        public string VideoMimeType { get; set; }
+
+
+
+
+        [System.Xml.Serialization.XmlElement("UploadMaxAttempts")]
+        public int UploadMaxAttempts { get; set; }
 
         [System.Xml.Serialization.XmlElement("YoutubeUserName")]
         public string YoutubeUserName { get; set; }
@@ -220,6 +244,71 @@ namespace Helper
         public string MegaPassword { get; set; }
 
 #endregion
+
+
+        public class Round
+        {
+            [System.Xml.Serialization.XmlElement("FileName")]
+            public string FileName;
+            [System.Xml.Serialization.XmlElement("Args")]
+            public string Args;
+
+            [System.Xml.Serialization.XmlElement("ProcessorAffinity")]
+            public string ProcessorAffinity
+            {
+                get
+                {
+                    return _processorAffinity.ToString();
+                }
+                set
+                {
+                    int value2;
+                    if (int.TryParse(value.ToString(), System.Globalization.NumberStyles.HexNumber,
+                                     null, out value2))
+                        if (value2 > 0)
+                            _processorAffinity = value2;
+                        else
+                            _processorAffinity = 1; // default first processor
+                }
+            }
+            private int? _processorAffinity;
+
+            [System.Xml.Serialization.XmlElement("ProcessorPriority")]
+            public int ProcessorPriority
+            {
+                get
+                {
+                    return (int)_processorPriority;
+                }
+                set
+                {
+                    switch ((int)value)
+                    {
+                        case 0:
+                            _processorPriority = ProcessPriorityClass.Idle;
+                            break;
+                        case 1:
+                            _processorPriority = ProcessPriorityClass.BelowNormal;
+                            break;
+                        case 2:
+                            _processorPriority = ProcessPriorityClass.Normal;
+                            break;
+                        case 3:
+                            _processorPriority = ProcessPriorityClass.AboveNormal;
+                            break;
+                        case 4:
+                            _processorPriority = ProcessPriorityClass.High;
+                            break;
+                        case 5:
+                            _processorPriority = ProcessPriorityClass.RealTime;
+                            break;
+                    }
+                }
+            }
+            private ProcessPriorityClass _processorPriority;
+
+        }
+
 
     }
 }

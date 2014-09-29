@@ -17,12 +17,14 @@ namespace Helper
 
         public static void Error(string text)
         {
-            Write(String.Format("[{0}] [ERROR] {1}\n", DateTime.Now, text));
+            if (Config.Data == null || Config.Data.LogError)
+                Write(String.Format("[{0}] [ERROR] {1}\n", DateTime.Now, text));
         }
 
         public static void Info(string text)
         {
-            Write(String.Format("[{0}] [INFO] {1}\n", DateTime.Now, text));
+            if (Config.Data == null || Config.Data.LogInfo)
+                Write(String.Format("[{0}] [INFO] {1}\n", DateTime.Now, text));
         }
 
         // write to log

@@ -1,50 +1,89 @@
 ﻿<?xml version="1.0"?>
 <configuration>
-  <!-- NDM2MP4 -->
+  <LogInfo>true</LogInfo>
+  <LogError>true</LogError>
+
+  <!-- NDM2VIDEO -->
   <!-- full path to nfk.exe -->
-  <GameExeFile>D:\Games\NFK\NFK.exe</GameExeFile>
+  <GameExeFile>D:\Games\NFK\nfk077a.upd.exe</GameExeFile>
   <!-- autoexec commands for tuning view -->
   <Autoexec>
-shownick 1
-drawtime 1
-cameratype 1
-drawfps 0
+    drawtime 1
+    cameratype 1
+    drawfps 0
+    shownick 1
+    railtrailtime 40
+    r_railsize 5
+    r_massacre 1
   </Autoexec>
-  
-  <RecordAudio>true</RecordAudio>
-  <!-- number of audio device (starting from 0) -->
-  <AudioDevice>0</AudioDevice>
+
+  <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?) -->
+  <ExtraTime>10</ExtraTime>
 
   <VideoWidth>854</VideoWidth>
   <VideoHeight>480</VideoHeight>
-  <VideoFps>25</VideoFps>
-  <VideoBitrate>15000000</VideoBitrate>
+  <VideoFps>30</VideoFps>
+  <VideoBitrate>60000000</VideoBitrate>
   <VideoPaddingTop>26</VideoPaddingTop>
   <VideoPaddingLeft>3</VideoPaddingLeft>
 
+  <!-- game process settings -->
   <!-- hex value http://bit.ly/ZWkGpM -->
-  <ProcessorAffinity>1</ProcessorAffinity>
-  <!-- numeric value 0-5 http://bit.ly/Urr7Rn -->
-  <ProcessorPriority>0</ProcessorPriority>
-  <!-- if game process is hang up then wait for X seconds and stop all work and exit -->
+  <!-- "8" = core: 4 -->
+  <ProcessorAffinity>8</ProcessorAffinity>
+  <!-- 0=Idle, 1=BelowNormal, 2=Normal, 3=AboveNormal, 4=High, 5=RealTime -->
+  <ProcessorPriority>3</ProcessorPriority>
+  <!-- if game process is hang up then wait for X seconds and stop all work and exit (works only if ExternalVideoCapture = false) -->
   <GameProcessTimeout>30</GameProcessTimeout>
   <!-- keep game window on top -->
   <AlwaysOnTop>true</AlwaysOnTop>
 
+  <!-- file extension for a video result file  -->
+  <VideoOutputExtension>avi</VideoOutputExtension>
 
-  <!-- NFKSCHEDULER -->
+  <!-- use external program to record video+audio directly into a single video file? 
+  if no then slow built-in game mechanism will be used that captures each frame into 25 image files (without audio) -->
+  <ExternalVideoCapture>true</ExternalVideoCapture>
+
+  <ExternalToolRoundTrip>
+    <Round>
+      <FileName>ffmpeg.exe</FileName>
+      <Args>-y -f dshow -i audio="Line 1 (Virtual Audio Cable)" -itsoffset 0.6 -f gdigrab -draw_mouse 0 -framerate 30 -i title="Need For Kill" -threads 1 -codec:v huffyuv -acodec pcm_s16le -y "{outfile}"</Args>
+      <!-- "4" = core: 3 -->
+      <ProcessorAffinity>4</ProcessorAffinity>
+      <ProcessorPriority>1</ProcessorPriority>
+    </Round>
+    <Round>
+      <FileName>ffmpeg.exe</FileName>
+      <Args>-i "{infile}" -vcodec mpeg4 -qscale 1 -threads 1 -ab 128k -y "{outfile}"</Args>
+      <!-- "C" = cores: 3,4 -->
+      <ProcessorAffinity>C</ProcessorAffinity>
+      <ProcessorPriority>1</ProcessorPriority>
+    </Round>
+    <Round>
+      <FileName>ffmpeg.exe</FileName>
+      <Args>-f concat -i concat.txt -threads 1 -c copy "{outfile}"</Args>
+      <!-- "C" = cores: 3,4 -->
+      <ProcessorAffinity>C</ProcessorAffinity>
+      <ProcessorPriority>1</ProcessorPriority>
+    </Round>
+  </ExternalToolRoundTrip>
+
+
+  
+  <!-- NDMSCHEDULER -->
   <!-- where to save videos, demos and temp files -->
-  <Ndm2Mp4File>ndm2mp4.exe</Ndm2Mp4File>      
+  <Ndm2VideoFile>ndm2video.exe</Ndm2VideoFile>
   <TempDir>tempdir</TempDir>
 
   <!-- needforkill.ru API -->
-  <AppId>a</AppId>
-  <ApiKey>helloworld</ApiKey>
-  <GetDemoUrl>http://127.0.0.1:3000/getdemo/?apikey={apikey}&amp;appid={appid}</GetDemoUrl>
-  <SetVideoUrl>http://127.0.0.1:3000/setvideo/?apikey={apikey}&amp;appid={appid}</SetVideoUrl>
+  <AppId>x</AppId>
+  <ApiKey>CHANGE</ApiKey>
+  <GetDemoUrl>http://nfk.pro2d.ru/api.php?action=getdemo&amp;apikey={apikey}&amp;appid={appid}</GetDemoUrl>
+  <SetVideoUrl>http://nfk.pro2d.ru/api.php?action=setvideo&amp;apikey={apikey}&amp;appid={appid}&amp;demoid={demoid}</SetVideoUrl>
 
 
-  <!-- NFKUPLOADER -->
+  <!-- NDMUPLOADER -->
   <!-- youtube video details -->
   <VideoTitle>{nickname}{vsnickname} ({gametype}, {mapname})</VideoTitle>
   <VideoDescription>
@@ -53,8 +92,15 @@ drawfps 0
 
     Credits:
     {playerlist}
+
+    Recorded at: {date}
   </VideoDescription>
   <VideoKeyWords>need for kill, nfk, action, arcade, shooter, dynamic, massacre</VideoKeyWords>
+  <!-- for youtube -->
+  <VideoMimeType>video/avi</VideoMimeType>
+
+  <!-- upload attemps if timeout -->
+  <UploadMaxAttempts>5</UploadMaxAttempts>
 
   <!-- youtube.com credentials -->
   <YoutubeUserName>CHANGE</YoutubeUserName>
