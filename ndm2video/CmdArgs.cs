@@ -9,8 +9,14 @@ namespace ndm2video
     {
         public static void ParseOptions(string[] args)
         {
-            int value;
+            if (args.Length == 0)
+            {
+                Console.WriteLine("(c) 2014 HarpyWar (harpywar@gmail.com)\n\nUsage: \n\nndm2video.exe -demo [filename] -duration [demo duration in seconds] -playerid [follow player id] -output [video file result]\n");
 
+                Environment.Exit(0);
+            }
+
+            int value;
             Log.Info("Given cmd args: " + string.Join(" ", args));
 
             for (int i = 0; i < args.Length; i++ )

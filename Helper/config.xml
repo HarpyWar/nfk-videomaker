@@ -12,8 +12,9 @@
     cameratype 1
     drawfps 0
     shownick 1
+    r_fx_plasma 1
     railtrailtime 40
-    r_railsize 5
+    r_railwidth 6
     r_massacre 1
   </Autoexec>
 
@@ -85,7 +86,7 @@
 
   <!-- NDMUPLOADER -->
   <!-- youtube video details -->
-  <VideoTitle>{nickname}{vsnickname} ({gametype}, {mapname})</VideoTitle>
+  <VideoTitle>#{demoid} {nickname}{vsnickname} ({gametype}, {mapname})</VideoTitle>
   <VideoDescription>
     Match URL: http://nfk.pro2d.ru/match/{demoid}
     Download Demo: {demourl}
