@@ -222,6 +222,9 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("UploadMaxAttempts")]
         public int UploadMaxAttempts { get; set; }
 
+        [System.Xml.Serialization.XmlElement("YoutubeUploadCompleteExec")]
+        public string YoutubeUploadCompleteExec { get; set; }
+
         [System.Xml.Serialization.XmlElement("YoutubeUserName")]
         public string YoutubeUserName { get; set; }
 

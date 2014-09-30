@@ -103,12 +103,16 @@
   <!-- upload attemps if timeout -->
   <UploadMaxAttempts>5</UploadMaxAttempts>
 
+  
+  
   <!-- youtube.com credentials -->
   <YoutubeUserName>CHANGE</YoutubeUserName>
   <YoutubePassword>CHANGE</YoutubePassword>
   <YoutubeAppName>CHANGE</YoutubeAppName>
   <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
-
+  <!-- start program when video is uploaded (leave empty to disable) -->
+  <YoutubeUploadCompleteExec>irccd\bin\irccdctl.exe message wenet #nfk Match #{demoid} uploaded (following {nickname}) "https://www.youtube.com/watch?v={videoid}"</YoutubeUploadCompleteExec>
+  
   <!-- mega.co.nz credentials -->
   <!-- upload demo to mega? if no source demo url will be in video description -->
   <MegaUpload>true</MegaUpload>

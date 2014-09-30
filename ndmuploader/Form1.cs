@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Helper;
 using System.IO;
+using System.Diagnostics;
 
 namespace ndmuploader
 {
@@ -64,7 +65,13 @@ namespace ndmuploader
                 // add youtube id in filename (1234_1.mp4 -> 1234_1_youtubeid.mp4)
                 var newVideoFile = demo.local_videos[i].FileName.Replace("." + Config.Data.VideoOutputExtension, "_" + demo.local_videos[i].YoutubeId + "." + Config.Data.VideoOutputExtension);
                 Log.Info("Rename " + demo.local_videos[i].FileName + " -> " + newVideoFile);
-                File.Move(demo.local_videos[i].FileName, newVideoFile); 
+                File.Move(demo.local_videos[i].FileName, newVideoFile);
+                
+                
+                if (!string.IsNullOrEmpty(Config.Data.YoutubeUploadCompleteExec))
+                {
+                    startYoutubeCallbackProcess(demo, i);
+                }
             }
 
             var videoString = string.Join(" ", demo.local_videos.Select(v => v.YoutubeId));
@@ -158,6 +165,45 @@ namespace ndmuploader
                 if (!goodChars.Contains(str[i]))
                     str[i] = '#';
             return new string(str);
+        }
+
+        /// <summary>
+        /// Start process when video is uploaded
+        /// </summary>
+        /// <param name="videoId"></param>
+        private void startYoutubeCallbackProcess(DemoItem demo, int idx)
+        {
+            var tmp = Config.Data.YoutubeUploadCompleteExec.Split(' ');
+            var fileName = tmp[0];
+            var args = new StringBuilder();
+            for (int i = 1; i < tmp.Length; i++)
+                args.Append(" " + tmp[i]
+                    .Replace("{videoid}", demo.local_videos[idx].YoutubeId)
+                    .Replace("{nickname}", demo.players[idx])
+                    .Replace("{vsnickname}", demo.players[idx])
+                    .Replace("{demoid}", demo.id.ToString())
+                    .Replace("{gametype}", demo.gametype)
+                    );
+
+            var p = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = fileName,
+                    Arguments = args.ToString().Trim(),
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            try
+            {
+                Log.Info(string.Format("Starting {0}{1}", fileName, args.ToString()));
+                p.Start();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+            }
         }
 
     }
