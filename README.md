@@ -1,14 +1,16 @@
-NFK Demo Maker
+NFK Video Maker
 =============
 
 Автоматизирует создание видео из демок для игры [Need For Kill](http://needforkill.ru). 
 
-Набор из трех утилит для развертывания на выделенном сервере (требуется видеокарта для запуска игры). Заложена возможность параллельного запуска на разных серверах с передачей результатов на сайт статистики. Для этого достаточно изменить `appid` в [config.xml](https://github.com/HarpyWar/nfk-demomaker/blob/master/Helper/config.xml).
+Набор из трех утилит для развертывания на выделенном сервере (требуется видеокарта для запуска игры). 
+
+Заложена возможность параллельного запуска на разных серверах с передачей согласованных результатов на сайт статистики. Для этого достаточно изменить `appid` в [config.xml](https://github.com/HarpyWar/nfk-demomaker/blob/master/Helper/config.xml).
 
 
-![](http://i.imgur.com/xgDdKZf.png)
+![](http://i.imgur.com/MZYuFaM.png)
 
-Проект запущен на выделенном сервере и продюсирует видео от новых сыгранных игр на http://www.youtube.com/user/needforkilldemo
+Проект запущен на выделенном сервере и продюсирует видео от последних сыгранных игр на http://www.youtube.com/user/needforkilldemo
 
 ndm2video.exe
 --
@@ -36,3 +38,7 @@ ndmuploader.exe
 - загружает видео файлы на YouTube, в описание вставляется информация о демке, ссылка на сайт статистики и ссылка на скачивание файла демки с mega.co.nz 
 
 - по окончании загрузки посылает YouTube ссылки на сайт статистики
+
+-------
+* [Последовательность команд ffmpeg](https://github.com/HarpyWar/nfk-videomaker/wiki/Sequence-of-ffmpeg-commands)
+* [API методы сайта статистики](https://github.com/HarpyWar/nfk-videomaker/wiki/NFK-API-methods)
