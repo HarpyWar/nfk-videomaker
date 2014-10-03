@@ -47,13 +47,16 @@ namespace ndmscheduler
                 // file that created as a successfull result of this program
                 jsonFile = Path.Combine(Config.Data.TempDir, demo.id + ".json");
 
-                // if json file does not exist from a previous run (it's waiting to be processing by ndmuploader)
+                // if json file does not exist from a previous run
                 if (!File.Exists(jsonFile))
                     break;
                 // else appId will be increased again
             }
             demo.local_appid = appFullId;
             Log.Error("Using appid = " + appFullId);
+
+            demo.file = System.Net.WebUtility.UrlDecode(demo.file);
+
 
             // get local path to demofile (filename extracted from the url)
             string demoFile = Path.Combine(Config.Data.TempDir, Path.GetFileName(demo.file));
@@ -66,18 +69,36 @@ namespace ndmscheduler
                 Environment.Exit(0);
             }
 
-            // check the file is nfk demo
-            if (!isDemoValid(demoFile))
+
+
+            // read map width/height and set followplayer
+            var ndm = new NFKDemo(demoFile);
+            var map = ndm.GetMapSize();
+            if (map.Width == 0 || map.Height == 0)
             {
                 Log.Error("Bad nfk demo");
                 // send back result with bad demo file
                 APIClient.SetVideo(demo.id, "BAD_DEMO_FILE", demo.local_appid);
                 Environment.Exit(1);
             }
+            var logMapSize = string.Format("Map size is {0}x{1}. ", map.Width, map.Height);
+            // if mapsize out of bounds video size then use follow player
+            if ((map.Width * NFKDemo.BrickSize.Width) > Config.Data.VideoWidth || (map.Height * NFKDemo.BrickSize.Height) > Config.Data.VideoHeight)
+            {
+                demo.local_followplayer = true;
+                logMapSize += string.Format("Enable following a player ({0} videos will be produced).", demo.players.Length);
+            }
+            else
+            {
+                logMapSize += "Disable following a player (1 video will be produced).";
+                demo.local_followplayer = false;
+            }
+            Log.Info(logMapSize);
 
             demo.local_videos = new VideoItem[demo.players.Length];
 
             int playerid;
+            int followplayerid;
             // create video in first-person of each player
             for (int i = 0; i < demo.players.Length; i++)
             {
@@ -94,6 +115,7 @@ namespace ndmscheduler
 
                 Log.Info("Creating video through ndm2video.exe ...");
 
+                followplayerid = (demo.local_followplayer) ? playerid : 0;
                 // run process ndm2video.exe with video creation 
                 var p = new Process()
                 {
@@ -101,7 +123,7 @@ namespace ndmscheduler
                     {
                         FileName = Config.Data.Ndm2VideoFile,
                         WorkingDirectory = Path.GetDirectoryName(Config.Data.Ndm2VideoFile),
-                        Arguments = string.Format("-demo \"{0}\" -duration {1} -playerid {2} -output \"{3}\"", demoFile, demo.duration, playerid, videoFile),
+                        Arguments = string.Format("-demo \"{0}\" -duration {1} -playerid {2} -output \"{3}\"", demoFile, demo.duration, followplayerid, videoFile),
                         UseShellExecute = false,
                         CreateNoWindow = true
                     }
@@ -138,6 +160,10 @@ namespace ndmscheduler
                     if (p != null)
                         p.Close();
                 }
+
+                // stop if no follow player
+                if (demo.local_followplayer == false)
+                    break;
             }
 
 
@@ -149,32 +175,6 @@ namespace ndmscheduler
             Environment.Exit(0);
         }
 
-
-
-        private bool isDemoValid(string fileName)
-        {
-            string header = "NFKDEMO";
-            try
-            {
-                // check demo file (first 7 bytes)
-                using (FileStream fs = File.OpenRead(fileName))
-                {
-                    if (fs.Length < header.Length)
-                        return false;
-
-                    byte[] buffer = new byte[header.Length];
-                    fs.Read(buffer, 0, header.Length);
-                    if (Encoding.Default.GetString(buffer) != header)
-                        return false;
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.Message);
-            }
-            return false;
-        }
 
 
 

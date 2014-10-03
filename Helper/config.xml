@@ -8,14 +8,18 @@
   <GameExeFile>D:\Games\NFK\nfk077a.upd.exe</GameExeFile>
   <!-- autoexec commands for tuning view -->
   <Autoexec>
-    drawtime 1
-    cameratype 1
-    drawfps 0
-    shownick 1
-    r_fx_plasma 1
-    railtrailtime 40
-    r_railwidth 6
-    r_massacre 1
+drawtime 1
+drawfps 0
+shownick 1
+r_fx_plasma 1
+railtrailtime 40
+r_railwidth 6
+r_massacre 1
+menucolor 7
+ch_hudvisible 0
+ch_showfollowinglabel 0
+ch_qwscoreboard 1
+messagetime 100
   </Autoexec>
 
   <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?) -->
@@ -56,7 +60,7 @@
     </Round>
     <Round>
       <FileName>ffmpeg.exe</FileName>
-      <Args>-i "{infile}" -vcodec mpeg4 -qscale 1 -threads 1 -ab 128k -y "{outfile}"</Args>
+      <Args>-i "{infile}" -vcodec mpeg4 -qscale 1 -threads 1 -ab 128k -filter:v fade=in:0:7 -y "{outfile}"</Args>
       <!-- "C" = cores: 3,4 -->
       <ProcessorAffinity>C</ProcessorAffinity>
       <ProcessorPriority>1</ProcessorPriority>
@@ -70,6 +74,12 @@
     </Round>
   </ExternalToolRoundTrip>
 
+  <!-- show score board inside a game? -->
+  <ShowScoreBoard>true</ShowScoreBoard>
+  <!-- frequency between showing a scoreboard (in seconds) -->
+  <ScoreboardDuration>60</ScoreboardDuration>
+  <!-- how long a scoreboard should be shown (in seconds -->
+  <ScoreboardInterval>4</ScoreboardInterval>
 
   
   <!-- NDMSCHEDULER -->
@@ -111,7 +121,7 @@
   <YoutubeAppName>CHANGE</YoutubeAppName>
   <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
   <!-- start program when video is uploaded (leave empty to disable) -->
-  <YoutubeUploadCompleteExec>irccd\bin\irccdctl.exe message wenet #nfk Match #{demoid} uploaded (following {nickname}) "https://www.youtube.com/watch?v={videoid}"</YoutubeUploadCompleteExec>
+  <YoutubeUploadCompleteExec>cmd /c "echo Match was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} [{gametype}] ({players}) > message.txt"</YoutubeUploadCompleteExec>
   
   <!-- mega.co.nz credentials -->
   <!-- upload demo to mega? if no source demo url will be in video description -->

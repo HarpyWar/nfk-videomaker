@@ -40,5 +40,5 @@ ndmuploader.exe
 - по окончании загрузки посылает YouTube ссылки на сайт статистики
 
 -------
-* [Последовательность команд ffmpeg](https://github.com/HarpyWar/nfk-videomaker/wiki/Sequence-of-ffmpeg-commands)
+* [Запись видео через ffmpeg](https://github.com/HarpyWar/nfk-videomaker/wiki/Capture-video-ffmpeg)
 * [API методы сайта статистики](https://github.com/HarpyWar/nfk-videomaker/wiki/NFK-API-methods)

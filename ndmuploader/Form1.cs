@@ -66,12 +66,10 @@ namespace ndmuploader
                 var newVideoFile = demo.local_videos[i].FileName.Replace("." + Config.Data.VideoOutputExtension, "_" + demo.local_videos[i].YoutubeId + "." + Config.Data.VideoOutputExtension);
                 Log.Info("Rename " + demo.local_videos[i].FileName + " -> " + newVideoFile);
                 File.Move(demo.local_videos[i].FileName, newVideoFile);
-                
-                
-                if (!string.IsNullOrEmpty(Config.Data.YoutubeUploadCompleteExec))
-                {
-                    startYoutubeCallbackProcess(demo, i);
-                }
+
+                // stop if no follow player
+                if (demo.local_followplayer == false)
+                    break;
             }
 
             var videoString = string.Join(" ", demo.local_videos.Select(v => v.YoutubeId));
@@ -84,6 +82,10 @@ namespace ndmuploader
                 {
                     Log.Info("Removing " + v.FileName);
                     File.Delete(v.FileName);
+
+                    // stop if no follow player
+                    if (demo.local_followplayer == false)
+                        break;
                 }
                 // remove demo file
                 Log.Info("Removing " + demoFile);
@@ -93,6 +95,10 @@ namespace ndmuploader
                 File.Delete(jsonFile);
 
                 Log.Info("Well done!");
+
+
+                if (!string.IsNullOrEmpty(Config.Data.YoutubeUploadCompleteExec))
+                    startMatchUploadCallbackProcess(demo);
             }
             Environment.Exit(0);
         }
@@ -144,8 +150,8 @@ namespace ndmuploader
             }
             var recDate = APIClient.UnixTimeToDateTime(demo.date);
             var output = template
-                .Replace("{nickname}", demo.players[pindex])
-                .Replace("{vsnickname}", vsplayer)
+                .Replace("{nickname}", demo.local_followplayer ? demo.players[pindex]: string.Join(", ", demo.players).Trim(new char[] { ',', ' ' }))
+                .Replace("{vsnickname}", demo.local_followplayer ? vsplayer : string.Empty)
                 .Replace("{gametype}", gametype)
                 .Replace("{mapname}", demo.map)
                 .Replace("{vsplayer}", vsplayer)
@@ -163,7 +169,7 @@ namespace ndmuploader
             char[] str = input.ToCharArray();
             for (int i = 0; i < str.Length; i++)
                 if (!goodChars.Contains(str[i]))
-                    str[i] = '#';
+                    str[i] = '-';
             return new string(str);
         }
 
@@ -171,33 +177,31 @@ namespace ndmuploader
         /// Start process when video is uploaded
         /// </summary>
         /// <param name="videoId"></param>
-        private void startYoutubeCallbackProcess(DemoItem demo, int idx)
+        private void startMatchUploadCallbackProcess(DemoItem demo)
         {
             var tmp = Config.Data.YoutubeUploadCompleteExec.Split(' ');
             var fileName = tmp[0];
             var args = new StringBuilder();
             for (int i = 1; i < tmp.Length; i++)
                 args.Append(" " + tmp[i]
-                    .Replace("{videoid}", demo.local_videos[idx].YoutubeId)
-                    .Replace("{nickname}", demo.players[idx])
-                    .Replace("{vsnickname}", demo.players[idx])
                     .Replace("{demoid}", demo.id.ToString())
                     .Replace("{gametype}", demo.gametype)
+                    .Replace("{players}", string.Join(", ", demo.players).Trim(new char[] { ',', ' ' }))
                     );
-
+            
             var p = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
                     FileName = fileName,
-                    Arguments = args.ToString().Trim(),
+                    Arguments = replaceBadString(args.ToString()).Trim(),
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }
             };
             try
             {
-                Log.Info(string.Format("Starting {0}{1}", fileName, args.ToString()));
+                Log.Info(string.Format("Starting {0}{1}", fileName, replaceBadString(args.ToString())));
                 p.Start();
             }
             catch (Exception e)

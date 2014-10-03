@@ -51,9 +51,9 @@ namespace ndm2video
                 Log.Error("Bad '-duration'.");
                 Environment.Exit(1);
             }
-            if (Config.PlayerNumber <= 0)
+            if (Config.PlayerNumber < 0)
             {
-                Log.Error("Bad '-playeri'd.");
+                Log.Error("Bad '-playerid.");
                 Environment.Exit(1);
             }
             if (string.IsNullOrEmpty(Config.VideoFile))

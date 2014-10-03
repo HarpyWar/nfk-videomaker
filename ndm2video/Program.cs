@@ -75,10 +75,13 @@ namespace ndm2video
 unbind all
 {0}
 bind n nextplayer
+bind tab scoreboard
 writeconfig pid.cfg
 ", Config.Data.Autoexec.Replace("\n", "\r\n"));
             if (!Config.Data.ExternalVideoCapture)
                 sb.Append("\navi_start");
+            if (Config.PlayerNumber > 0)
+                sb.Append("\ncameratype 1");
 
             var autoexecFile = Path.Combine(Config.BaseNfkPath, "autoexec.cfg");
             Log.Info("Updating " + autoexecFile);
@@ -181,9 +184,19 @@ writeconfig pid.cfg
                     Log.Error("Could not find main window (Class: \"Tmainform\", Caption: \"Need For Kill\")");
                     Environment.Exit(1);
                 }
-                // switch player camera
-                for (int i = 1; i < Config.PlayerNumber; i++)
-                    NfkSendKey("n");
+
+                if (Config.PlayerNumber > 0)
+                {
+                    // switch player camera
+                    for (int i = 1; i < Config.PlayerNumber; i++)
+                        NfkSendKey("n");
+                }
+
+                if (Config.Data.ShowScoreBoard)
+                {
+                    // start scoreboard thread
+                    new Thread(scoreThreadDoWork).Start();
+                }
 
                 // start record video using external tool here
                 if (Config.Data.ExternalVideoCapture)
@@ -218,8 +231,6 @@ writeconfig pid.cfg
             }
         }
 
-
-
         private static void createMovie()
         {
             try
@@ -250,7 +261,7 @@ writeconfig pid.cfg
             // check is movie file created or size < 1MB
             if (!File.Exists(Config.VideoFile) || new FileInfo(Config.VideoFile).Length < (1024 * 1024))
             {
-                Log.Info("Movie file was not created " + Config.VideoFile);
+                Log.Error("Movie file was not created " + Config.VideoFile);
                 Environment.Exit(1); 
             }
 
@@ -260,11 +271,43 @@ writeconfig pid.cfg
 
 
 
-        private static void NfkSendKey(string keys)
+        private static void NfkSendKey(object keys, bool? down = null)
         {
             Win32.SetForegroundWindow(dxWindowHandle); // set focus
-            System.Windows.Forms.SendKeys.SendWait(keys); // send keys
+            Thread.Sleep(100);
+            Win32.SetForegroundWindow(dxWindowHandle); // set focus second time, because first is not enough to show scoreboard
+
+            if (down == null)
+                System.Windows.Forms.SendKeys.SendWait(keys.ToString()); // send keys
+            else
+            {
+                if (down == true)
+                    new WindowsInput.InputSimulator().Keyboard.KeyDown((WindowsInput.Native.VirtualKeyCode)keys);
+                else
+                    new WindowsInput.InputSimulator().Keyboard.KeyUp((WindowsInput.Native.VirtualKeyCode)keys);
+            }
         }
+                            
+        [STAThread]
+        private static void scoreThreadDoWork()
+        {
+            Thread.Sleep(5000);
+
+            while(!nfkProcess.HasExited)
+            {
+                NfkSendKey(WindowsInput.Native.VirtualKeyCode.TAB, true);
+                // how long scoreboard should be shown
+                Thread.Sleep((int)(Config.Data.ScoreboardDuration * 1000));
+                NfkSendKey(WindowsInput.Native.VirtualKeyCode.TAB, false);
+
+                // frequency between scoreboard show
+                Thread.Sleep((int)(Config.Data.ScoreboardInterval * 1000));
+            }
+            try{
+                Thread.ResetAbort();
+            } catch {}
+        }
+
 
 
         internal static void KillNFK()

@@ -160,6 +160,15 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("AlwaysOnTop")]
         public bool AlwaysOnTop { get; set; }
 
+        [System.Xml.Serialization.XmlElement("ShowScoreBoard")]
+        public bool ShowScoreBoard { get; set; }
+
+        [System.Xml.Serialization.XmlElement("ScoreboardInterval")]
+        public float ScoreboardInterval { get; set; }
+
+        [System.Xml.Serialization.XmlElement("ScoreboardDuration")]
+        public float ScoreboardDuration { get; set; }
+
 
 
 #endregion

@@ -73,12 +73,8 @@ namespace ndm2video
             // after killing NFK external capture tool should stop capture itself!
             Program.KillNFK();
 
-            // kill if it was not exitet yet
-            if (!_process.WaitForExit(5000))
-            {
-                Log.Info("Process was not exited itself. Kill it.");
-                _process.Kill();
-            }
+            // also kill the external process
+            _process.Kill();
         }
 
         /// <summary>

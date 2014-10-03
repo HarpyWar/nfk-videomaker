@@ -7,8 +7,8 @@ namespace ndm2video
 {
     class Win32
     {
-        [DllImport("User32.dll")]
-        public static extern int SetForegroundWindow(IntPtr point);
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr point);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
