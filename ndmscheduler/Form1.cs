@@ -53,22 +53,20 @@ namespace ndmscheduler
                 // else appId will be increased again
             }
             demo.local_appid = appFullId;
-            Log.Error("Using appid = " + appFullId);
-
-            demo.file = System.Net.WebUtility.UrlDecode(demo.file);
-
+            Log.Info("Using appid = " + appFullId);
 
             // get local path to demofile (filename extracted from the url)
-            string demoFile = Path.Combine(Config.Data.TempDir, Path.GetFileName(demo.file));
+            string demoFile = System.Net.WebUtility.UrlDecode(Path.Combine(Config.Data.TempDir, Path.GetFileName(demo.file)));
             // download demo file
-            Log.Info(String.Format("Downloading demo #{0} from {1} to {2}", demo.id, demo.file, Config.Data.TempDir));
+            Log.Info(String.Format("Downloading demo #{0} from {1} to {2}", demo.id, demo.file, demoFile));
             if (!APIClient.DownloadDemo(demo.file, demoFile))
             {
                 Log.Error(String.Format("Could not download file"));
                 APIClient.SetVideo(demo.id, "BAD_DEMO_FILE", demo.local_appid);
                 Environment.Exit(0);
             }
-
+            // decode after download
+            demo.file = System.Net.WebUtility.UrlDecode(demo.file);
 
 
             // read map width/height and set followplayer

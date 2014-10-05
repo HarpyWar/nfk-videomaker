@@ -20,6 +20,7 @@ ch_hudvisible 0
 ch_showfollowinglabel 0
 ch_qwscoreboard 1
 messagetime 100
+volume 10
   </Autoexec>
 
   <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?) -->
@@ -76,10 +77,10 @@ messagetime 100
 
   <!-- show score board inside a game? -->
   <ShowScoreBoard>true</ShowScoreBoard>
-  <!-- frequency between showing a scoreboard (in seconds) -->
-  <ScoreboardDuration>60</ScoreboardDuration>
+  <!-- frequency for show scoreboard inside a game (in seconds) -->
+  <ScoreboardInterval>60</ScoreboardInterval>
   <!-- how long a scoreboard should be shown (in seconds -->
-  <ScoreboardInterval>4</ScoreboardInterval>
+  <ScoreboardDuration>3.5</ScoreboardDuration>
 
   
   <!-- NDMSCHEDULER -->
@@ -99,12 +100,11 @@ messagetime 100
   <VideoTitle>#{demoid} {nickname}{vsnickname} ({gametype}, {mapname})</VideoTitle>
   <VideoDescription>
     Match URL: http://nfk.pro2d.ru/match/{demoid}
+    Players: {playerlist}
+
     Download Demo: {demourl}
 
-    Credits:
-    {playerlist}
-
-    Recorded at: {date}
+    The game was recorded at: {date}
   </VideoDescription>
   <VideoKeyWords>need for kill, nfk, action, arcade, shooter, dynamic, massacre</VideoKeyWords>
   <!-- for youtube -->
@@ -121,7 +121,7 @@ messagetime 100
   <YoutubeAppName>CHANGE</YoutubeAppName>
   <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
   <!-- start program when video is uploaded (leave empty to disable) -->
-  <YoutubeUploadCompleteExec>cmd /c "echo Match was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} [{gametype}] ({players}) > message.txt"</YoutubeUploadCompleteExec>
+  <YoutubeUploadCompleteExec>cmd /c "echo Match [{gametype}] ({playerlist}) was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} > message.txt"</YoutubeUploadCompleteExec>
   
   <!-- mega.co.nz credentials -->
   <!-- upload demo to mega? if no source demo url will be in video description -->

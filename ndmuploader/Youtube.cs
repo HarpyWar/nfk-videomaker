@@ -20,7 +20,10 @@ namespace ndmuploader
     {
         public static string Upload(string fileName, string title, string description)
         {
-            var settings = new YouTubeRequestSettings(Config.Data.YoutubeAppName, Config.Data.YoutubeDeveloperKey, Config.Data.YoutubeUserName, Config.Data.YoutubePassword);
+            var settings = new YouTubeRequestSettings(Config.Data.YoutubeAppName, Config.Data.YoutubeDeveloperKey, Config.Data.YoutubeUserName, Config.Data.YoutubePassword)
+                {
+                    Timeout = int.MaxValue
+                };
             var request = new YouTubeRequest(settings);
             var newVideo = new Video();
 
@@ -35,7 +38,7 @@ namespace ndmuploader
                 newVideo.YouTubeEntry.Private = false;
                 newVideo.YouTubeEntry.MediaSource = new MediaFileSource(fileName, Config.Data.VideoMimeType);
 
-                ((GDataRequestFactory)request.Service.RequestFactory).Timeout = 9999999;
+                ((GDataRequestFactory)request.Service.RequestFactory).Timeout = int.MaxValue;
                 var createdVideo = request.Upload(newVideo);
 
                 return createdVideo.VideoId;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -31,6 +32,9 @@ namespace ndmuploader
             string downloadUrl = string.Empty;
             while (true)
             {
+                var sw = new Stopwatch();
+                sw.Start();
+
                 if (++attempts > Config.Data.UploadMaxAttempts)
                     break;
 
@@ -40,16 +44,29 @@ namespace ndmuploader
                     Environment.Exit(1);
                 }
 
-                var fsize = new FileInfo(fileName).Length;
-                if (fsize > 0)
-                    fsize = fsize / 1024 / 1024;
+                var _fsize = new FileInfo(fileName).Length;
+                long fsize = 0;
+                string fsize_str = string.Empty;
+                if (_fsize > 0)
+                {
+                    fsize = _fsize / 1024 / 1024;
+                    fsize_str = "MB";
+                }
+                if (fsize == 0)
+                {
+                    fsize = _fsize / 1024;
+                    fsize_str = "KB";
+                }
 
-                Log.Info(string.Format("Uploading a file \"{0}\" ({1}MB) to {2} (attempt #{3})", fileName, fsize,service, attempts));
+                Log.Info(string.Format("Uploading a file \"{0}\" ({1}{2}) to {3} (attempt #{4})", fileName, fsize, fsize_str, service, attempts));
 
                 if (service == UploadService.Mega)
                     downloadUrl = Mega.Upload(fileName);
                 else if (service == UploadService.Youtube)
                     downloadUrl = Youtube.Upload(fileName, arg1, arg2);
+
+                Log.Info(string.Format("Elapsed: {0}", sw.Elapsed));
+                sw.Stop();
 
                 if (downloadUrl != null)
                     break;
@@ -60,7 +77,7 @@ namespace ndmuploader
                 Environment.Exit(1);
             }
 
-            Log.Info("Upload completed: " + downloadUrl);
+            Log.Info(string.Format("Upload completed: {0}", downloadUrl));
             return downloadUrl;
         }
     }

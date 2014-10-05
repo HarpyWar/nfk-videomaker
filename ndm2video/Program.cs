@@ -300,7 +300,7 @@ writeconfig pid.cfg
                 Thread.Sleep((int)(Config.Data.ScoreboardDuration * 1000));
                 NfkSendKey(WindowsInput.Native.VirtualKeyCode.TAB, false);
 
-                // frequency between scoreboard show
+                // frequency of show scoreboard
                 Thread.Sleep((int)(Config.Data.ScoreboardInterval * 1000));
             }
             try{

@@ -22,6 +22,7 @@ namespace Helper
                 .Replace("{demoid}", demoid.ToString())
                 .Replace("{apikey}", Config.Data.ApiKey)
                 .Replace("{appid}", appId);
+            Log.Info(string.Format("Updating video \"{0}\" on {1}", video, url));
             try
             {
                 using (var wc = new WebClient())
