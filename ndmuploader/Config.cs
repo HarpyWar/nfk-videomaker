@@ -11,12 +11,11 @@ namespace ndmuploader
 {
     public class Config : Helper.Config
     {
-        public static DemoItem ReadJsonDemo(string fileName)
+        public static DemoItem ReadJsonDemo(string text)
         {
             try
             {
-                var data = File.ReadAllText(fileName);
-                var jsonItem = Newtonsoft.Json.JsonConvert.DeserializeObject<DemoItem>(data);
+                var jsonItem = Newtonsoft.Json.JsonConvert.DeserializeObject<DemoItem>(text);
 
                 return jsonItem;
             }

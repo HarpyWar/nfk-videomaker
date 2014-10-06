@@ -31,7 +31,7 @@ namespace ndmuploader
             {
                 newVideo.Title = title;
                 newVideo.Tags.Add(new MediaCategory("Games", YouTubeNameTable.CategorySchema)); // category
-                newVideo.Tags.Add(new MediaCategory("NFK, Need For Kill", YouTubeNameTable.DeveloperTagSchema));
+                newVideo.Tags.Add(new MediaCategory("NFK", YouTubeNameTable.DeveloperTagSchema));
                 newVideo.Keywords = Config.Data.VideoKeyWords;
                 newVideo.Description = description;
             

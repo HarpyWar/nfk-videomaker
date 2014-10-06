@@ -16,6 +16,8 @@ namespace ndmuploader
 {
     public partial class Form1 : Form
     {
+
+
         public Form1()
         {
             InitializeComponent();
@@ -26,12 +28,53 @@ namespace ndmuploader
             if (files.Length == 0)
                 Environment.Exit(0);
 
-            var jsonFile = files.First();
-            Log.Info("Reading demo info file " + jsonFile);
+            try
+            {
 
-            // open first available json file with demo info
-            var demo = Config.ReadJsonDemo(jsonFile);
+                string jsonFile = null;
+                for (int j = 0; j < files.Length; j++)
+                {
+                    if (IsFileLocked(new FileInfo(files[j])))
+                        continue;
 
+                    jsonFile = files[j];
+                    break;
+                }
+                if (jsonFile == null)
+                    Environment.Exit(0);
+
+                Log.Info("Reading demo info file " + jsonFile);
+
+
+                bool result;
+                // lock file when processing
+                using (var  fs = new FileStream(jsonFile, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    using (var sr = new StreamReader(fs, Encoding.UTF8))
+                    {
+                        // open first available json file with demo info
+                        var demo = Config.ReadJsonDemo(sr.ReadToEnd());
+
+                        result = processDemo(demo);
+                    }
+                }
+                // remove file is result is success and file was unlocked
+                if (result)
+                {
+                    Log.Info("Remove " + jsonFile + " to close session");
+                    File.Delete(jsonFile);
+                }
+            }
+            catch(Exception e)
+            {
+                Log.Error(e.Message);
+            }
+
+            Environment.Exit(0);
+        }
+
+        private bool processDemo(DemoItem demo)
+        {
             // get demoFile from url (it was downloaded by ndmscheduler)
             var demoFile = Path.Combine(Config.Data.TempDir, Path.GetFileName(demo.file));
 
@@ -40,7 +83,7 @@ namespace ndmuploader
                 // upload demo file into cloud
                 var demourl = APIClient.Upload2Cloud(demoFile, UploadService.Mega);
                 // if file uploaded then replace source url
-                if (demourl != null) 
+                if (demourl != null)
                     demo.file = demourl;
             }
 
@@ -50,7 +93,7 @@ namespace ndmuploader
                 // if video file already uploaded to youtube (from a previous unfinished session)
                 // get youtube id from the filename
                 var pattern = demo.local_videos[i].FileName.Replace("." + Config.Data.VideoOutputExtension, "") + "_";// 1234_1.mp4 -> 1234_1_
-                if ((demo.local_videos[i].YoutubeId = FindLocalVideoFile(pattern)) != null) 
+                if ((demo.local_videos[i].YoutubeId = FindLocalVideoFile(pattern)) != null)
                     continue;
 
                 if (!File.Exists(demo.local_videos[i].FileName))
@@ -111,21 +154,17 @@ namespace ndmuploader
                 // remove demo file
                 Log.Info("Removing " + demoFile);
                 File.Delete(demoFile);
-                // remove json file
-                Log.Info("Removing " + jsonFile);
-                File.Delete(jsonFile);
-
-                Log.Info("Well done!");
-
 
                 if (!string.IsNullOrEmpty(Config.Data.YoutubeUploadCompleteExec))
                     startMatchUploadCallbackProcess(demo);
+
+                return true;
             }
             else
             {
                 Log.Error("Could not setvideo with content: " + videoString);
             }
-            Environment.Exit(0);
+            return false;
         }
 
 
@@ -180,6 +219,7 @@ namespace ndmuploader
                 }
 
             }
+
             var originalCulture = Thread.CurrentThread.CurrentCulture;
             // set current culture to English
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -266,6 +306,33 @@ namespace ndmuploader
                 str = str.Replace(rus_low[i], lat_low[i]);
             }
             return str;
+        }
+
+
+        public static bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
     }
 }
