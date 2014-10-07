@@ -29,12 +29,15 @@ namespace ndmuploader
 
             try
             {
-                newVideo.Title = title;
+                // "<" and ">" are not allowed
+                // https://developers.google.com/youtube/2.0/reference#youtube_data_api_tag_media:description
+                newVideo.Title = title.Replace("<", "[").Replace(">", "]");
+                newVideo.Description = description.Replace("<", "[").Replace(">", "]");
+
                 newVideo.Tags.Add(new MediaCategory("Games", YouTubeNameTable.CategorySchema)); // category
                 newVideo.Tags.Add(new MediaCategory("NFK", YouTubeNameTable.DeveloperTagSchema));
                 newVideo.Keywords = Config.Data.VideoKeyWords;
-                newVideo.Description = description;
-            
+                
                 newVideo.YouTubeEntry.Private = false;
                 newVideo.YouTubeEntry.MediaSource = new MediaFileSource(fileName, Config.Data.VideoMimeType);
 
@@ -43,6 +46,11 @@ namespace ndmuploader
 
                 return createdVideo.VideoId;
             }
+            catch (GDataRequestException e)
+            {
+                Log.Error(e.Message + "\n(" + e.ResponseString + ")");
+                return null;
+            }
             catch (Exception e)
             {
                 Log.Error(e.Message);
@@ -50,7 +58,7 @@ namespace ndmuploader
             }
             finally
             {
-
+                request = null;
             }
         }
 

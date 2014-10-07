@@ -23,7 +23,8 @@ messagetime 100
 volume 10
   </Autoexec>
 
-  <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?) -->
+  <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?)
+       It shoud be greater (4 seconds for example for ffmpeg, because there may be some lags when recording)-->
   <ExtraTime>10</ExtraTime>
 
   <VideoWidth>854</VideoWidth>

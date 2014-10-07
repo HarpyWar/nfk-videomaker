@@ -138,10 +138,10 @@ namespace ndmscheduler
                     if (p.ExitCode != 2)
                     {
                         Log.Error("ndm2video.exe exiting with error!");
+                        freeHangProcesses();
                         // remove file because it's bad
                         if (File.Exists(videoFile))
                         {
-                            freeHangProcesses();
                             try {
                                 Log.Info("Removing unfinished video " + videoFile);
                                 File.Delete(videoFile); 

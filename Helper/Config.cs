@@ -22,8 +22,6 @@ namespace Helper
 
             try
             {
-                Log.Separator();
-
                 var serializer = new XmlSerializer(typeof(Config));
 
                 StreamReader reader = new StreamReader(configName);

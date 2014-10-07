@@ -8,7 +8,7 @@ namespace Helper
     public static class Log
     {
         private static StringBuilder oldtext = new StringBuilder();
-
+        private static bool firstLog = true;
 
         public static void Separator()
         {
@@ -30,6 +30,12 @@ namespace Helper
         // write to log
         static void Write(string text)
         {
+            if (firstLog)
+            {
+                firstLog = false;
+                Separator();
+            }
+
             try
             {
                 using (StreamWriter w = File.AppendText(Config.LogFile))

@@ -94,7 +94,10 @@ namespace ndmuploader
                 // get youtube id from the filename
                 var pattern = demo.local_videos[i].FileName.Replace("." + Config.Data.VideoOutputExtension, "") + "_";// 1234_1.mp4 -> 1234_1_
                 if ((demo.local_videos[i].YoutubeId = FindLocalVideoFile(pattern)) != null)
+                {
+                    demo.local_videos[i].FileName = getNewFileName(demo.local_videos[i].FileName, demo.local_videos[i].YoutubeId);
                     continue;
+                }
 
                 if (!File.Exists(demo.local_videos[i].FileName))
                 {
@@ -108,7 +111,7 @@ namespace ndmuploader
                 demo.local_videos[i].YoutubeId = APIClient.Upload2Cloud(demo.local_videos[i].FileName, UploadService.Youtube, title, description);
 
                 // add youtube id in filename (1234_1.mp4 -> 1234_1_youtubeid.mp4)
-                var newVideoFile = demo.local_videos[i].FileName.Replace("." + Config.Data.VideoOutputExtension, "_" + demo.local_videos[i].YoutubeId + "." + Config.Data.VideoOutputExtension);
+                var newVideoFile = getNewFileName(demo.local_videos[i].FileName, demo.local_videos[i].YoutubeId);
                 Log.Info("Rename " + demo.local_videos[i].FileName + " -> " + newVideoFile);
                 File.Move(demo.local_videos[i].FileName, newVideoFile);
                 // replace filename
@@ -179,7 +182,7 @@ namespace ndmuploader
             {
                 if (f.StartsWith(startsWith))
                 {
-                    string youtubeId = f.Substring(startsWith.Length, f.Length - ("." + Config.Data.VideoOutputExtension).Length);
+                    string youtubeId = f.Substring(startsWith.Length, f.Length - startsWith.Length - ("." + Config.Data.VideoOutputExtension).Length);
                     if (youtubeId != string.Empty)
                         return youtubeId;
                 }
@@ -250,7 +253,20 @@ namespace ndmuploader
             for (int i = 0; i < str.Length; i++)
                 if (!goodChars.Contains(str[i]))
                     str[i] = '-';
+
+
             return new string(str);
+        }
+
+        /// <summary>
+        /// Add youtube Id to video file
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="youtubeId"></param>
+        /// <returns></returns>
+        private static string getNewFileName(string fileName, string youtubeId)
+        {
+            return fileName.Replace("." + Config.Data.VideoOutputExtension, "_" + youtubeId + "." + Config.Data.VideoOutputExtension);
         }
 
         /// <summary>
