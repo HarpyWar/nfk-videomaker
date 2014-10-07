@@ -122,7 +122,7 @@ volume 10
   <YoutubeAppName>CHANGE</YoutubeAppName>
   <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
   <!-- start program when video is uploaded (leave empty to disable) -->
-  <YoutubeUploadCompleteExec>cmd /c "echo Match [{gametype}] ({playerlist}) was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} > message.txt"</YoutubeUploadCompleteExec>
+  <YoutubeUploadCompleteExec>cmd /c "echo Match [{gametype}] ({playerlist}) was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} > ..\IRCBot\bin\message.txt"</YoutubeUploadCompleteExec>
   
   <!-- mega.co.nz credentials -->
   <!-- upload demo to mega? if no source demo url will be in video description -->
