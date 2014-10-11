@@ -24,6 +24,7 @@ namespace ndmuploader
             this.Visible = false;
 
             Config.Load();
+
             var files = Directory.GetFiles(Config.Data.TempDir, "*.json");
             if (files.Length == 0)
                 Environment.Exit(0);
@@ -308,7 +309,6 @@ namespace ndmuploader
 
 
 
-
         // RU -> EN
         public static string Translit(string str)
         {
@@ -350,5 +350,6 @@ namespace ndmuploader
             //file is not locked
             return false;
         }
+
     }
 }

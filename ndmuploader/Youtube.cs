@@ -1,4 +1,5 @@
 ﻿using Google.GData.Client;
+using Google.GData.Client.ResumableUpload;
 using Google.GData.Extensions.Location;
 using Google.GData.Extensions.MediaRss;
 using Google.GData.YouTube;
@@ -18,33 +19,50 @@ namespace ndmuploader
 {
     class Youtube
     {
-        public static string Upload(string fileName, string title, string description)
-        {
-            var settings = new YouTubeRequestSettings(Config.Data.YoutubeAppName, Config.Data.YoutubeDeveloperKey, Config.Data.YoutubeUserName, Config.Data.YoutubePassword)
-                {
-                    Timeout = int.MaxValue
-                };
-            var request = new YouTubeRequest(settings);
-            var newVideo = new Video();
+        int chunkSize = 2; //MB
+        ResumableUploader ru = null;
+        ClientLoginAuthenticator ya;
+        string videoId = null;
 
+        Video newVideo;
+
+        public Youtube()
+        {
+            ru = new ResumableUploader(chunkSize);
+            ya = new ClientLoginAuthenticator(Config.Data.YoutubeAppName, ServiceNames.YouTube, Config.Data.YoutubeUserName, Config.Data.YoutubePassword);
+            ya.DeveloperKey = Config.Data.YoutubeDeveloperKey;
+
+            newVideo = new Video();
+
+            // add the upload uri to video
+            AtomLink link = new AtomLink("http://uploads.gdata.youtube.com/resumable/feeds/api/users/" + Config.Data.YoutubeUserName.Split('@')[0] + "/uploads");
+            link.Rel = ResumableUploader.CreateMediaRelation;
+            newVideo.YouTubeEntry.Links.Add(link);
+
+        }
+        public string Upload(string fileName, string title, string description)
+        {
+            byte[] chunk = new byte[chunkSize*1024];
             try
             {
+                newVideo.YouTubeEntry.Private = false;
                 // "<" and ">" are not allowed
                 // https://developers.google.com/youtube/2.0/reference#youtube_data_api_tag_media:description
                 newVideo.Title = title.Replace("<", "[").Replace(">", "]");
                 newVideo.Description = description.Replace("<", "[").Replace(">", "]");
 
                 newVideo.Tags.Add(new MediaCategory("Games", YouTubeNameTable.CategorySchema)); // category
-                newVideo.Tags.Add(new MediaCategory("NFK", YouTubeNameTable.DeveloperTagSchema));
                 newVideo.Keywords = Config.Data.VideoKeyWords;
                 
-                newVideo.YouTubeEntry.Private = false;
-                newVideo.YouTubeEntry.MediaSource = new MediaFileSource(fileName, Config.Data.VideoMimeType);
+                newVideo.Private = false;
+                newVideo.MediaSource = new MediaFileSource(fileName, MediaFileSource.GetContentTypeForFileName(fileName));
 
-                ((GDataRequestFactory)request.Service.RequestFactory).Timeout = int.MaxValue;
-                var createdVideo = request.Upload(newVideo);
+                // async upload
+                //ru.InsertAsync(ya, newVideo.YouTubeEntry, u);
 
-                return createdVideo.VideoId;
+                var response = ru.Insert(ya, newVideo.YouTubeEntry);
+                Log.Info("Response: " + response.ResponseUri.PathAndQuery);
+                videoId = response.ResponseUri.PathAndQuery.Split('/').Last();
             }
             catch (GDataRequestException e)
             {
@@ -56,11 +74,9 @@ namespace ndmuploader
                 Log.Error(e.Message);
                 return null;
             }
-            finally
-            {
-                request = null;
-            }
+            return videoId;
         }
+
 
 
     }

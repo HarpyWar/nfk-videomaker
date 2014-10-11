@@ -63,7 +63,7 @@ namespace ndmuploader
                 if (service == UploadService.Mega)
                     downloadUrl = Mega.Upload(fileName);
                 else if (service == UploadService.Youtube)
-                    downloadUrl = Youtube.Upload(fileName, arg1, arg2);
+                    downloadUrl = new Youtube().Upload(fileName, arg1, arg2);
 
                 Log.Info(string.Format("Elapsed: {0}", sw.Elapsed));
                 sw.Stop();

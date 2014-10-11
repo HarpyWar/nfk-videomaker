@@ -41,7 +41,7 @@ volume 10
   <!-- 0=Idle, 1=BelowNormal, 2=Normal, 3=AboveNormal, 4=High, 5=RealTime -->
   <ProcessorPriority>3</ProcessorPriority>
   <!-- if game process is hang up then wait for X seconds and stop all work and exit (works only if ExternalVideoCapture = false) -->
-  <GameProcessTimeout>30</GameProcessTimeout>
+  <GameProcessTimeout>15</GameProcessTimeout>
   <!-- keep game window on top -->
   <AlwaysOnTop>true</AlwaysOnTop>
 
@@ -108,8 +108,6 @@ volume 10
     The game was recorded at: {date}
   </VideoDescription>
   <VideoKeyWords>need for kill, nfk, action, arcade, shooter, dynamic, massacre</VideoKeyWords>
-  <!-- for youtube -->
-  <VideoMimeType>video/avi</VideoMimeType>
 
   <!-- upload attemps if timeout -->
   <UploadMaxAttempts>5</UploadMaxAttempts>

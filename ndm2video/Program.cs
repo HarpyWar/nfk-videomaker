@@ -121,14 +121,20 @@ writeconfig pid.cfg
 
             while (true)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(Config.Data.GameProcessTimeout * 1000);
+
+                if (nfkProcess != null && !nfkProcess.HasExited && !nfkProcess.Responding)
+                {
+                    Log.Error("Game process is hang up. Exiting.");
+                    nfkProcess.Kill();
+                }
 
                 if (!Config.Data.ExternalVideoCapture && !movieProcessing)
                 {
                     // if during 5 seconds no spawn of new images then nfk.exe is hang up
                     if ((DateTime.Now.Subtract(lastImageTime)).Seconds > Config.Data.GameProcessTimeout)
                     {
-                        Log.Error("Game process is hang up > " + Config.Data.GameProcessTimeout + ". Kill it!");
+                        Log.Error("Game process is hang up > " + Config.Data.GameProcessTimeout + ". Exiting!");
                         nfkProcess.Kill();
                     }
                 }
