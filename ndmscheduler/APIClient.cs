@@ -20,6 +20,7 @@ namespace ndmscheduler
             {
                 using (var wc = new WebClient())
                 {
+                    Log.Info("Get match from " + url);
                     var response = wc.DownloadString(url);
                     var jsonItem = Newtonsoft.Json.JsonConvert.DeserializeObject<DemoItem>(response);
 

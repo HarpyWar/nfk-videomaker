@@ -35,10 +35,19 @@ namespace ndmuploader
                 string jsonFile = null;
                 for (int j = 0; j < files.Length; j++)
                 {
-                    if (IsFileLocked(new FileInfo(files[j])))
+                    if (Common.IsFileLocked(new FileInfo(files[j])))
                         continue;
 
                     jsonFile = files[j];
+
+                    // if demo is not ready yet
+                    var d = Common.ReadJsonDemo(File.ReadAllText(jsonFile));
+                    if (!d.local_completed)
+                    {
+                        jsonFile = null;
+                        continue;
+                    }
+
                     break;
                 }
                 if (jsonFile == null)
@@ -54,7 +63,7 @@ namespace ndmuploader
                     using (var sr = new StreamReader(fs, Encoding.UTF8))
                     {
                         // open first available json file with demo info
-                        var demo = Config.ReadJsonDemo(sr.ReadToEnd());
+                        var demo = Common.ReadJsonDemo(sr.ReadToEnd());
 
                         result = processDemo(demo);
                     }
@@ -69,6 +78,7 @@ namespace ndmuploader
             catch(Exception e)
             {
                 Log.Error(e.Message);
+                Log.Error(e.StackTrace);
             }
 
             Environment.Exit(0);
@@ -97,7 +107,7 @@ namespace ndmuploader
                 if ((demo.local_videos[i].YoutubeId = FindLocalVideoFile(pattern)) != null)
                 {
                     demo.local_videos[i].FileName = getNewFileName(demo.local_videos[i].FileName, demo.local_videos[i].YoutubeId);
-                    continue;
+                    goto continue_for;
                 }
 
                 if (!File.Exists(demo.local_videos[i].FileName))
@@ -118,6 +128,7 @@ namespace ndmuploader
                 // replace filename
                 demo.local_videos[i].FileName = newVideoFile;
 
+            continue_for:
                 // stop if no follow player
                 if (demo.local_followplayer == false)
                     break;
@@ -283,7 +294,7 @@ namespace ndmuploader
                 args.Append(" " + tmp[i]
                     .Replace("{demoid}", demo.id.ToString())
                     .Replace("{gametype}", demo.gametype)
-                    .Replace("{playerlist}", Translit(string.Join(", ", demo.players).Trim(new char[] { ',', ' ' })))
+                    .Replace("{playerlist}", Common.Translit(string.Join(", ", demo.players).Trim(new char[] { ',', ' ' })))
                     );
             
             var p = new Process()
@@ -307,49 +318,6 @@ namespace ndmuploader
             }
         }
 
-
-
-        // RU -> EN
-        public static string Translit(string str)
-        {
-            string[] lat_up = { "A", "B", "V", "G", "D", "E", "Yo", "Zh", "Z", "I", "Y", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "Kh", "Ts", "Ch", "Sh", "Shch", "\"", "Y", "'", "E", "Yu", "Ya" };
-            string[] lat_low = { "a", "b", "v", "g", "d", "e", "yo", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "kh", "ts", "ch", "sh", "shch", "\"", "y", "'", "e", "yu", "ya" };
-            string[] rus_up = { "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я" };
-            string[] rus_low = { "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я" };
-            for (int i = 0; i <= 32; i++)
-            {
-                str = str.Replace(rus_up[i], lat_up[i]);
-                str = str.Replace(rus_low[i], lat_low[i]);
-            }
-            return str;
-        }
-
-
-        public static bool IsFileLocked(FileInfo file)
-        {
-            FileStream stream = null;
-
-            try
-            {
-                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            }
-            catch (IOException)
-            {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
-
-            //file is not locked
-            return false;
-        }
 
     }
 }

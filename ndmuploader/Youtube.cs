@@ -46,10 +46,13 @@ namespace ndmuploader
             try
             {
                 newVideo.YouTubeEntry.Private = false;
-                // "<" and ">" are not allowed
+                
                 // https://developers.google.com/youtube/2.0/reference#youtube_data_api_tag_media:description
-                newVideo.Title = title.Replace("<", "[").Replace(">", "]");
-                newVideo.Description = description.Replace("<", "[").Replace(">", "]");
+                newVideo.Title = title
+                    .Replace("<", "[").Replace(">", "]") // "<" and ">" are not allowed
+                    .Substring(0, title.Length > 100 ? 100 : title.Length); // max 100 symbols
+                newVideo.Description = description.Replace("<", "[")
+                    .Replace(">", "]");
 
                 newVideo.Tags.Add(new MediaCategory("Games", YouTubeNameTable.CategorySchema)); // category
                 newVideo.Keywords = Config.Data.VideoKeyWords;

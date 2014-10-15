@@ -75,6 +75,8 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("ExternalVideoCapture")]
         public bool ExternalVideoCapture { get; set; }
 
+        [System.Xml.Serialization.XmlElement("ParallelEncoding")]
+        public bool ParallelEncoding { get; set; }
 
         [System.Xml.Serialization.XmlArray("ExternalToolRoundTrip")]
         public Round[] ExternalToolRoundTrip { get; set; }

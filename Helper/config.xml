@@ -5,7 +5,7 @@
 
   <!-- NDM2VIDEO -->
   <!-- full path to nfk.exe -->
-  <GameExeFile>D:\Games\NFK\nfk077a.upd.exe</GameExeFile>
+  <GameExeFile>..\NFK\nfk077-record.exe</GameExeFile>
   <!-- autoexec commands for tuning view -->
   <Autoexec>
 drawtime 1
@@ -25,7 +25,7 @@ volume 10
 
   <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?)
        It shoud be greater (4 seconds for example for ffmpeg, because there may be some lags when recording)-->
-  <ExtraTime>10</ExtraTime>
+  <ExtraTime>50</ExtraTime>
 
   <VideoWidth>854</VideoWidth>
   <VideoHeight>480</VideoHeight>
@@ -40,7 +40,7 @@ volume 10
   <ProcessorAffinity>8</ProcessorAffinity>
   <!-- 0=Idle, 1=BelowNormal, 2=Normal, 3=AboveNormal, 4=High, 5=RealTime -->
   <ProcessorPriority>3</ProcessorPriority>
-  <!-- if game process is hang up then wait for X seconds and stop all work and exit (works only if ExternalVideoCapture = false) -->
+  <!-- if game process is hang up then wait for X seconds and stop all work and exit -->
   <GameProcessTimeout>15</GameProcessTimeout>
   <!-- keep game window on top -->
   <AlwaysOnTop>true</AlwaysOnTop>
@@ -52,7 +52,16 @@ volume 10
   if no then slow built-in game mechanism will be used that captures each frame into 25 image files (without audio) -->
   <ExternalVideoCapture>true</ExternalVideoCapture>
 
+  <!-- first and next rounds are running in different processes: 
+        - first round when capture a game video in ndm2video.exe
+        - next rounds in ndmdecoder
+  If enabled, and the process is the same (like ffmpeg) you must duplicate a program file for next rounds (for example, ffmpeg2.exe).
+  If disabled then all the rounds are running step-by-step in ndm2video.exe, and ndmdecoder.exe should not be used 
+  Note: it should be enabled only if you have SSD drive, because there is an extremely high disk usage when recording and decoding together -->
+  <ParallelEncoding>true</ParallelEncoding>
+
   <ExternalToolRoundTrip>
+    <!-- recording -->
     <Round>
       <FileName>ffmpeg.exe</FileName>
       <Args>-y -f dshow -i audio="Line 1 (Virtual Audio Cable)" -itsoffset 0.6 -f gdigrab -draw_mouse 0 -framerate 30 -i title="Need For Kill" -threads 1 -codec:v huffyuv -acodec pcm_s16le -y "{outfile}"</Args>
@@ -60,15 +69,18 @@ volume 10
       <ProcessorAffinity>4</ProcessorAffinity>
       <ProcessorPriority>1</ProcessorPriority>
     </Round>
+    <!-- encoding -->
     <Round>
-      <FileName>ffmpeg.exe</FileName>
+      <FileName>ffmpeg2.exe</FileName>
       <Args>-i "{infile}" -vcodec mpeg4 -qscale 1 -threads 1 -ab 128k -filter:v fade=in:0:7 -y "{outfile}"</Args>
       <!-- "C" = cores: 3,4 -->
       <ProcessorAffinity>C</ProcessorAffinity>
       <ProcessorPriority>1</ProcessorPriority>
     </Round>
+    <!-- concat with intro video
+    make sure that paths are valid in concat.txt-->
     <Round>
-      <FileName>ffmpeg.exe</FileName>
+      <FileName>ffmpeg2.exe</FileName>
       <Args>-f concat -i concat.txt -threads 1 -c copy "{outfile}"</Args>
       <!-- "C" = cores: 3,4 -->
       <ProcessorAffinity>C</ProcessorAffinity>
@@ -83,7 +95,7 @@ volume 10
   <!-- how long a scoreboard should be shown (in seconds -->
   <ScoreboardDuration>3.5</ScoreboardDuration>
 
-  
+
   <!-- NDMSCHEDULER -->
   <!-- where to save videos, demos and temp files -->
   <Ndm2VideoFile>ndm2video.exe</Ndm2VideoFile>
@@ -112,8 +124,8 @@ volume 10
   <!-- upload attemps if timeout -->
   <UploadMaxAttempts>5</UploadMaxAttempts>
 
-  
-  
+
+
   <!-- youtube.com credentials -->
   <YoutubeUserName>CHANGE</YoutubeUserName>
   <YoutubePassword>CHANGE</YoutubePassword>
@@ -121,11 +133,12 @@ volume 10
   <YoutubeDeveloperKey>CHANGE</YoutubeDeveloperKey>
   <!-- start program when video is uploaded (leave empty to disable) -->
   <YoutubeUploadCompleteExec>cmd /c "echo Match [{gametype}] ({playerlist}) was uploaded onto Youtube http://nfk.pro2d.ru/match/{demoid} > ..\IRCBot\bin\message.txt"</YoutubeUploadCompleteExec>
-  
+
   <!-- mega.co.nz credentials -->
   <!-- upload demo to mega? if no source demo url will be in video description -->
   <MegaUpload>true</MegaUpload>
   <MegaUserName>CHANGE</MegaUserName>
   <MegaPassword>CHANGE</MegaPassword>
+
 
 </configuration>

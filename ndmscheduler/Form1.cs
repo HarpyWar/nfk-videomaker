@@ -103,13 +103,14 @@ namespace ndmscheduler
                 playerid = i + 1;
                 // video filename that will be generated after ndm2video.exe processing
                 var videoFile = Path.Combine(Config.Data.TempDir, string.Format("{0}_{1}.{2}", demo.id, playerid, Config.Data.VideoOutputExtension));
-                demo.local_videos[i] = new VideoItem() { 
-                    FileName = videoFile 
+                demo.local_videos[i] = new VideoItem()
+                {
+                    FileName = videoFile
                 };
 
-                // do not create the same video it is was done earlier
-                if (File.Exists(videoFile))
-                    continue;
+                // do not create the same video it is was done earlier && size > 1MB
+                if (File.Exists(videoFile) && new FileInfo(videoFile).Length > (1024 * 1024))
+                    goto continue_for;
 
                 Log.Info("Creating video through ndm2video.exe ...");
 
@@ -131,22 +132,32 @@ namespace ndmscheduler
                     p.Start();
 
                     // wait for process exit
-                    do { }
-                    while (!p.WaitForExit(1000));
+                    while (!p.HasExited)
+                    {
+                        Thread.Sleep(5000);
+
+                        if (!p.Responding)
+                        {
+                            p.Kill();
+                            break;
+                        }
+                    }
 
                     // process exit code (2 = success)
                     if (p.ExitCode != 2)
                     {
                         Log.Error("ndm2video.exe exiting with error!");
-                        freeHangProcesses();
+                        Common.freeHangProcesses();
                         // remove file because it's bad
                         if (File.Exists(videoFile))
                         {
-                            try {
+                            try
+                            {
                                 Log.Info("Removing unfinished video " + videoFile);
-                                File.Delete(videoFile); 
+                                File.Delete(videoFile);
                             }
-                            catch (Exception e) {
+                            catch (Exception e)
+                            {
                                 Log.Error(e.Message);
                             }
                         }
@@ -159,61 +170,14 @@ namespace ndmscheduler
                         p.Close();
                 }
 
+            continue_for:
                 // stop if no follow player
                 if (demo.local_followplayer == false)
                     break;
             }
 
-
-            Log.Info("Demo was processed. Save data into " + jsonFile);
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(demo, Newtonsoft.Json.Formatting.Indented);
-
-            // save into json with all needed data that can be uploaded by ndmuploader.exe
-            File.WriteAllText(jsonFile, json);
+            Common.SaveJsonDemo(jsonFile, demo);
             Environment.Exit(0);
-        }
-
-
-
-
-        private void freeHangProcesses()
-        {
-            if (Config.Data.ExternalVideoCapture)
-            {
-                // 1) kill all external processes
-                foreach (var round in Config.Data.ExternalToolRoundTrip)
-                {
-                    using (var p = new Process()
-                    {
-                        StartInfo = new ProcessStartInfo()
-                        {
-                            FileName = "taskkill.exe",
-                            Arguments = "/F /IM " + round.FileName,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        }
-                    })
-                    {
-                        p.Start();
-                    }
-                }
-            }
-            // 2) kill nfk
-            using (var p = new Process()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = "taskkill.exe",
-                    Arguments = "/F /IM " + Config.Data.GameExeFile,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            })
-            {
-                p.Start();
-            }
-            // just in case that previous commands was exited
-            Thread.Sleep(10000);
         }
 
 

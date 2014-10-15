@@ -28,6 +28,7 @@ namespace ndm2video
         static DateTime lastImageTime = DateTime.Now;
 
         static IntPtr dxWindowHandle; // game process main windows handle
+        static ExternalVideoTool ex;
 
         static void Main(string[] args)
         {
@@ -119,14 +120,20 @@ writeconfig pid.cfg
             watcher.EnableRaisingEvents = true;
             watcher.Created += new FileSystemEventHandler(OnImageCreated);
 
+            int hangUpTimes = 0;
             while (true)
             {
                 Thread.Sleep(Config.Data.GameProcessTimeout * 1000);
 
                 if (nfkProcess != null && !nfkProcess.HasExited && !nfkProcess.Responding)
                 {
-                    Log.Error("Game process is hang up. Exiting.");
-                    nfkProcess.Kill();
+                    hangUpTimes++;
+                    if (hangUpTimes > 3)
+                    {
+                        Log.Error("Game process is hang up. Exiting.");
+                        KillNFK();
+                        Environment.Exit(1);
+                    }
                 }
 
                 if (!Config.Data.ExternalVideoCapture && !movieProcessing)
@@ -135,7 +142,8 @@ writeconfig pid.cfg
                     if ((DateTime.Now.Subtract(lastImageTime)).Seconds > Config.Data.GameProcessTimeout)
                     {
                         Log.Error("Game process is hang up > " + Config.Data.GameProcessTimeout + ". Exiting!");
-                        nfkProcess.Kill();
+                        KillNFK();
+                        Environment.Exit(1);
                     }
                 }
             }
@@ -172,10 +180,14 @@ writeconfig pid.cfg
                 Thread.Sleep(2000);
 
                 // set priority and affinity for nfk
-                nfkProcess.ProcessorAffinity = (IntPtr)int.Parse(Config.Data.ProcessorAffinity);
-                nfkProcess.PriorityClass = (ProcessPriorityClass)Config.Data.ProcessorPriority;
                 // .. and for current process
-                Process.GetCurrentProcess().ProcessorAffinity = (IntPtr)int.Parse(Config.Data.ProcessorAffinity);
+                var affinity = int.Parse(Config.Data.ProcessorAffinity);
+                if (affinity > 0)
+                {
+                    nfkProcess.ProcessorAffinity = (IntPtr)affinity;
+                    Process.GetCurrentProcess().ProcessorAffinity = (IntPtr)affinity;
+                }
+                nfkProcess.PriorityClass = (ProcessPriorityClass)Config.Data.ProcessorPriority;
                 Process.GetCurrentProcess().PriorityClass = (ProcessPriorityClass)Config.Data.ProcessorPriority;
 
                 // select directx main window
@@ -194,9 +206,10 @@ writeconfig pid.cfg
                 if (Config.PlayerNumber > 0)
                 {
                     // switch player camera
-                    for (int i = 1; i < Config.PlayerNumber; i++)
+                    for (int i = 0; i < Config.PlayerNumber; i++)
                         NfkSendKey("n");
                 }
+                Thread.Sleep(1000);
 
                 if (Config.Data.ShowScoreBoard)
                 {
@@ -211,8 +224,8 @@ writeconfig pid.cfg
                     if (File.Exists(Config.VideoFile))
                         File.Delete(Config.VideoFile);
 
-                    new ExternalVideoTool()
-                        .ExternalToolStart(string.Empty, 0); // start with first round (capture game video)
+                    ex = new ExternalVideoTool();
+                    ex.ExternalToolStart(string.Empty, 0); // start with first round (capture game video)
                 }
 
                 return;
@@ -279,9 +292,11 @@ writeconfig pid.cfg
 
         private static void NfkSendKey(object keys, bool? down = null)
         {
-            Win32.SetForegroundWindow(dxWindowHandle); // set focus
-            Thread.Sleep(100);
-            Win32.SetForegroundWindow(dxWindowHandle); // set focus second time, because first is not enough to show scoreboard
+            for (int i = 0; i < 5; i++)
+            {
+                Win32.SetForegroundWindow(dxWindowHandle); // set focus several times
+                Thread.Sleep(100);
+            }
 
             if (down == null)
                 System.Windows.Forms.SendKeys.SendWait(keys.ToString()); // send keys
@@ -318,11 +333,20 @@ writeconfig pid.cfg
 
         internal static void KillNFK()
         {
-            // kill nfk.exe by force
-            if (!nfkProcess.HasExited)
-                nfkProcess.Kill();
+            try
+            {
+                // kill nfk.exe by force
+                if (!nfkProcess.HasExited)
+                    nfkProcess.Kill();
+                if (ex != null)
+                    ex.Dispose();
 
-            nfkProcess.WaitForExit(5000);
+                Common.freeHangProcesses();
+            }
+            catch(Exception e)
+            {
+                Log.Error(e.Message);
+            }
         }
     }
 }

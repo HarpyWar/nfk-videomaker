@@ -8,13 +8,19 @@ using System.Threading;
 
 namespace ndm2video
 {
-    class ExternalVideoTool
+    class ExternalVideoTool : IDisposable
     {
 
         private Process _process;
         private System.Timers.Timer externalToolTimer;
 
         private int roundNumber;
+        private string outFile;
+
+        public ExternalVideoTool()
+        {
+            this.outFile = Config.VideoFile;
+        }
 
         /// <summary>
         /// Starts external video capture program
@@ -44,14 +50,15 @@ namespace ndm2video
             _process.Start();
 
             // delay before set affinity + priority
-            Thread.Sleep(5000);
+            Thread.Sleep(10000);
 
-            _process.ProcessorAffinity = (IntPtr)int.Parse(Config.Data.ExternalToolRoundTrip[roundNumber].ProcessorAffinity);
-            _process.PriorityClass = (ProcessPriorityClass)Config.Data.ExternalToolRoundTrip[roundNumber].ProcessorPriority;
-
-            // next round should be exited itself
-            if (this.roundNumber > 0)
-                return;
+            if (!_process.HasExited)
+            {
+                var affinity = int.Parse(Config.Data.ExternalToolRoundTrip[roundNumber].ProcessorAffinity);
+                if (affinity > 0)
+                    _process.ProcessorAffinity = (IntPtr)affinity;
+                _process.PriorityClass = (ProcessPriorityClass)Config.Data.ExternalToolRoundTrip[roundNumber].ProcessorPriority;
+            }
 
             // start auto-exit timer with interval of game duration
             externalToolTimer = new System.Timers.Timer() { Interval = (Config.DemoDuration + Config.Data.ExtraTime) * 1000 };
@@ -85,6 +92,7 @@ namespace ndm2video
         private void externalToolProcess_Exited(object sender, EventArgs e)
         {
             // last round
+            if (Config.Data.ParallelEncoding)
             if (this.roundNumber == Config.Data.ExternalToolRoundTrip.Length - 1)
             {
                 Program.endMovieCreation();
@@ -101,25 +109,30 @@ namespace ndm2video
             else
             {
                 Log.Info("Result is success. Kill the external video tool process.");
-                startNextRound();
+
+                if (Config.Data.ParallelEncoding)
+                    Program.endMovieCreation();
+                else
+                    startNextRound();
             }
         }
+
 
         private void startNextRound()
         {
             // check is movie file created or size < 1MB
-            if (!File.Exists(Config.VideoFile) || new FileInfo(Config.VideoFile).Length < (1024*1024) )
+            if (!File.Exists(this.outFile) || new FileInfo(this.outFile).Length < (1024 * 1024))
             {
-                Log.Info("Movie file was not created " + Config.VideoFile);
+                Log.Info("Movie file does not exist " + this.outFile);
                 Environment.Exit(1);
             }
 
             // rename result file into (path + "input" + ext)
-            var infile = Path.Combine(Path.GetDirectoryName(Config.VideoFile), "input" + Path.GetExtension(Config.VideoFile));
+            var infile = Path.Combine(Path.GetDirectoryName(this.outFile), "input" + Path.GetExtension(this.outFile));
             if (File.Exists(infile))
                 File.Delete(infile);
-            Log.Info(string.Format("Rename {0} -> {1}", Config.VideoFile, infile));
-            File.Move(Config.VideoFile, infile);
+            Log.Info(string.Format("Rename {0} -> {1}", this.outFile, infile));
+            File.Move(this.outFile, infile);
 
             this.roundNumber++;
             // now start concat tool (intro file + result file)
@@ -127,5 +140,16 @@ namespace ndm2video
         }
 
 
+        public void Dispose()
+        {
+            if (externalToolTimer != null)
+            {
+                externalToolTimer.Stop();
+                externalToolTimer.Dispose();
+
+            }
+            if (_process != null && !_process.HasExited)
+                _process.Kill();
+        }
     }
 }

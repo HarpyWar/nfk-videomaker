@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIClient.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DemoItem.cs" />
     <Compile Include="Log.cs" />

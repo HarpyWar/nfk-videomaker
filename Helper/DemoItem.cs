@@ -20,5 +20,6 @@ namespace Helper
         public VideoItem[] local_videos;
         public string local_appid;
         public bool local_followplayer;
+        public bool local_completed;
     }
 }
