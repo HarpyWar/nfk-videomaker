@@ -1,8 +1,3 @@
---
--- irccd plugin by HarpyWar (harpywar@gmail.com)
--- Check message.txt modifications and send into a channel with a delay
---
-
 local util = require "irccd.util"
 local thread = require "irccd.thread"
 		
@@ -42,9 +37,12 @@ function startLoop()
 			
 			-- if file was modified
 			if not (lastModTime == filemtime) then
-				-- add new item to table
-				table.insert(messages, {sendtime = system.ticks()+fileSendInterval, text = f:read()})
-				lastModTime = filemtime
+				local content = f:read()
+				if content then
+					-- add new item to table
+					table.insert(messages, {sendtime = system.ticks()+fileSendInterval, text = content})
+					lastModTime = filemtime
+				end
 			end
 		end
 		

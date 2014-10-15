@@ -1,9 +1,4 @@
-#
-# Check the NFK Planet for new players and send a message on IRC channel 
-#  if pcount == maxpcount - 1
-#
-# (c) HarpyWar (harpywar@gmail.com)
-#
+# Check the Planet for new Players and send a message on IRC channel
 
 $programfile = "D:\NFK\IRCBot\bin\irccdctl.exe"
 $channelname = "#nfk"
@@ -36,20 +31,26 @@ foreach ($item in $items)
 	
 	$pcount = $item.load[0]
 	$pmax = $item.load[2]
-	
+	echo "$pcount $gametype $pmax"
 	$waiting = $FALSE
 	# if players == 2 in DM mode
-	if ($gametype -eq "DM" -and $pmax -eq 2) { $waiting = $TRUE }
+	if ($pcount -eq "1" -and $gametype -eq "DM" -and $pmax -eq "2") { $waiting = $TRUE }
 	# if gametype == TDM|CTF|DOM && players == 2
-	if (($gametype -eq "TDM" -or $gametype -eq "CTF" -or $gametype -eq "DOM") -and $pcount -eq $pmax-1) { $waiting = $TRUE }
+	if ($gametype -eq "TDM" -or $gametype -eq "CTF" -or $gametype -eq "DOM") {
+		if ($pcount -eq $pmax-1) { $waiting = $TRUE }
+		if ($pcount -eq "2" -or $pcount -eq "5") { $waiting = $TRUE } #sometimes maxplayers is 8, but players waiting for 1 player
+	}
 	
 	if ($waiting)
 	{
 		$verb = "are"
 		if ($player_count -eq 1) { $verb = "is" }
-		$message = '"' + "$players $verb waiting for YOU on the Planet: ($load) [$gametype] $map" + '"'
+		$ass = gc D:\NFK\IRCBot\bin\ass1.txt | sort{get-random} | select -First 1
+		$adds = gc D:\NFK\IRCBot\bin\ass2.txt | sort{get-random} | select -First 1
+		
+		$message = '"' + "$players $verb waiting for $ass on the Planet: ($load) [$gametype] $map$adds" + '"'
 	
-		start-process "$programfile" -args "message $servername $channelname $message"
+		start-process "$programfile" -args "me $servername $channelname $message"
 	}
 	#"it works"
 }
