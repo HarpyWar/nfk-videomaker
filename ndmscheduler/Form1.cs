@@ -176,6 +176,9 @@ namespace ndmscheduler
                     break;
             }
 
+            if (!Config.Data.ParallelEncoding)
+                demo.local_completed = true;
+
             Common.SaveJsonDemo(jsonFile, demo);
             Environment.Exit(0);
         }
