@@ -8,7 +8,7 @@ NFK Video Maker
 Заложена возможность параллельного запуска на разных серверах с передачей согласованных результатов на сайт статистики. Для этого достаточно изменить `appid` в [config.xml](https://github.com/HarpyWar/nfk-demomaker/blob/master/Helper/config.xml).
 
 
-![](http://i.imgur.com/MZYuFaM.png)
+![](http://i.imgur.com/pu6RSP9.png)
 
 Проект запущен на выделенном сервере и продюсирует видео от последних сыгранных игр на http://www.youtube.com/user/needforkilldemo
 
