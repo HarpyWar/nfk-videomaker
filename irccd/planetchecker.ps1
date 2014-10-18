@@ -35,6 +35,10 @@ foreach ($item in $items)
 	$waiting = $FALSE
 	# if players == 2 in DM mode
 	if ($pcount -eq "1" -and $gametype -eq "DM" -and $pmax -eq "2") { $waiting = $TRUE }
+	if ($player_count -ge 3 -and $gametype -eq "DM") { 
+		$message = '"' + "$players are playering in ($load) [$gametype] $map. Let's play CTF may be!?" + '"'
+		start-process "$programfile" -args "me $servername $channelname $message"
+	}
 	# if gametype == TDM|CTF|DOM && players == 2
 	if ($gametype -eq "TDM" -or $gametype -eq "CTF" -or $gametype -eq "DOM") {
 		if ($pcount -eq $pmax-1) { $waiting = $TRUE }
