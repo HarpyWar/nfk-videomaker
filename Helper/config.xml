@@ -120,6 +120,8 @@ volume 10
     The game was recorded at: {date}
   </VideoDescription>
   <VideoKeyWords>need for kill, nfk, action, arcade, shooter, dynamic, massacre</VideoKeyWords>
+  <!-- playlist name where to upload all the videos -->
+  <VideoPlayList>Demos from dedicated servers</VideoPlayList>
 
   <!-- upload attemps if timeout -->
   <UploadMaxAttempts>5</UploadMaxAttempts>

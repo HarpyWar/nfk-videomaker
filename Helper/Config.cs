@@ -222,6 +222,9 @@ namespace Helper
         [System.Xml.Serialization.XmlElement("VideoKeyWords")]
         public string VideoKeyWords { get; set; }
 
+        [System.Xml.Serialization.XmlElement("VideoPlayList")]
+        public string VideoPlayList { get; set; }
+
         [System.Xml.Serialization.XmlElement("VideoMimeType")]
         public string VideoMimeType { get; set; }
 

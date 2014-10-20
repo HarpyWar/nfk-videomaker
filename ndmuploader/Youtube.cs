@@ -38,8 +38,8 @@ namespace ndmuploader
             AtomLink link = new AtomLink("http://uploads.gdata.youtube.com/resumable/feeds/api/users/" + Config.Data.YoutubeUserName.Split('@')[0] + "/uploads");
             link.Rel = ResumableUploader.CreateMediaRelation;
             newVideo.YouTubeEntry.Links.Add(link);
-
         }
+
         public string Upload(string fileName, string title, string description)
         {
             byte[] chunk = new byte[chunkSize*1024];
@@ -66,6 +66,8 @@ namespace ndmuploader
                 var response = ru.Insert(ya, newVideo.YouTubeEntry);
                 Log.Info("Response: " + response.ResponseUri.PathAndQuery);
                 videoId = response.ResponseUri.PathAndQuery.Split('/').Last();
+
+                AddVideoToPlayList(videoId);
             }
             catch (GDataRequestException e)
             {
@@ -80,8 +82,39 @@ namespace ndmuploader
             return videoId;
         }
 
+        private static Feed<Playlist> AddVideoToPlayList(string videoId)
+        {
+            var request = DoYouTubeRequest();
+            Feed<Playlist> userPlaylists = request.GetPlaylistsFeed(Config.Data.YoutubeUserName.Split('@')[0]);
 
+            foreach (Playlist p in userPlaylists.Entries)
+            {
+                if (p.Title == Config.Data.VideoPlayList)
+                {
+                    var pm = getPlayListMember(videoId, p);
+                    //p.Summary = "updated summary " + DateTime.Now; // update playlist description
+                    request.AddToPlaylist(p, pm);
+                }
+            }
+            return null;
+        }
 
+        private static PlayListMember getPlayListMember(string videoId, Playlist playlist)
+        {
+            YouTubeRequest request = DoYouTubeRequest();
+
+            PlayListMember pm = new PlayListMember();
+            pm.VideoId = videoId;
+            return pm;
+        }
+
+        private static YouTubeRequest DoYouTubeRequest()
+        {
+            YouTubeRequestSettings settings = new YouTubeRequestSettings(Config.Data.YoutubeAppName, Config.Data.YoutubeDeveloperKey, Config.Data.YoutubeUserName, Config.Data.YoutubePassword);
+            YouTubeRequest request = new YouTubeRequest(settings);
+            return request;
+        }
+        
     }
 
 }
