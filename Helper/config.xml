@@ -20,7 +20,7 @@ ch_hudvisible 0
 ch_showfollowinglabel 0
 ch_qwscoreboard 1
 messagetime 100
-volume 10
+volume 5
   </Autoexec>
 
   <!-- additional seconds that will be added to game duration (5 seconds before game and 5 after?)
@@ -73,8 +73,8 @@ volume 10
     <Round>
       <FileName>ffmpeg2.exe</FileName>
       <Args>-i "{infile}" -vcodec mpeg4 -qscale 1 -threads 1 -ab 128k -filter:v fade=in:0:7 -y "{outfile}"</Args>
-      <!-- "C" = cores: 3,4 -->
-      <ProcessorAffinity>C</ProcessorAffinity>
+      <!-- "3" = cores: 1,2 -->
+      <ProcessorAffinity>3</ProcessorAffinity>
       <ProcessorPriority>1</ProcessorPriority>
     </Round>
     <!-- concat with intro video
@@ -82,8 +82,8 @@ volume 10
     <Round>
       <FileName>ffmpeg2.exe</FileName>
       <Args>-f concat -i concat.txt -threads 1 -c copy "{outfile}"</Args>
-      <!-- "C" = cores: 3,4 -->
-      <ProcessorAffinity>C</ProcessorAffinity>
+      <!-- "3" = cores: 1,2 -->
+      <ProcessorAffinity>3</ProcessorAffinity>
       <ProcessorPriority>1</ProcessorPriority>
     </Round>
   </ExternalToolRoundTrip>

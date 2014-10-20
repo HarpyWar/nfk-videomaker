@@ -70,18 +70,27 @@ namespace ndmscheduler
 
 
             // read map width/height and set followplayer
-            var ndm = new NFKDemo(demoFile);
-            var map = ndm.GetMapSize();
-            if (map.Width == 0 || map.Height == 0)
+            var ndm = new nfklib.NDemo.NFKDemo();
+            var dem = ndm.Read(demoFile);
+            if (dem == null)
             {
                 Log.Error("Bad nfk demo");
                 // send back result with bad demo file
                 APIClient.SetVideo(demo.id, "BAD_DEMO_FILE", demo.local_appid);
                 Environment.Exit(1);
             }
-            var logMapSize = string.Format("Map size is {0}x{1}. ", map.Width, map.Height);
+            // override playerlist with players fetched from demo
+            demo.players = new string[dem.Players.Count];
+            for (int i = 0; i < dem.Players.Count; i++)
+            {
+                demo.players[i] = nfklib.Helper.GetRealNick(nfklib.Helper.GetDelphiString(dem.Players[i].netname));
+                if (string.IsNullOrEmpty(demo.players[i]))
+                    demo.players[i] = "---";
+            }
+
+            var logMapSize = string.Format("Map size is {0}x{1}. ", dem.Map.Header.MapSizeX, dem.Map.Header.MapSizeY);
             // if mapsize out of bounds video size then use follow player
-            if ((map.Width * NFKDemo.BrickSize.Width) > Config.Data.VideoWidth || (map.Height * NFKDemo.BrickSize.Height) > Config.Data.VideoHeight)
+            if ((dem.Map.Header.MapSizeX * dem.Map.Header.MapSizeY) > Config.Data.VideoWidth || (dem.Map.Header.MapSizeY * nfklib.NMap.NFKMap.BrickHeight) > Config.Data.VideoHeight)
             {
                 demo.local_followplayer = true;
                 logMapSize += string.Format("Enable following a player ({0} videos will be produced).", demo.players.Length);
