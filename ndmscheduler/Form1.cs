@@ -87,6 +87,8 @@ namespace ndmscheduler
                 if (string.IsNullOrEmpty(demo.players[i]))
                     demo.players[i] = "---";
             }
+            // override demo duration
+            demo.duration = dem.Duration;
 
             var logMapSize = string.Format("Map size is {0}x{1}. ", dem.Map.Header.MapSizeX, dem.Map.Header.MapSizeY);
             // if mapsize out of bounds video size then use follow player
