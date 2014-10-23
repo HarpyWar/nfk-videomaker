@@ -257,7 +257,7 @@ namespace ndmuploader
             return replaceBadString(output);
         }
 
-        static string goodChars = "\n\r абвгдеежзиклмнопрстуфхцчшщъюьэюяАБВГДЕЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЮЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^&*()_+`-=/?.>,<\\|'\";:]}[{";
+        static string goodChars = "\n\r абвгдеёжзийклмнопрстуфхцчшщъыюьэюяАБВГДЕЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЮЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^&*()_+`-=/?.>,<\\|'\";:]}[{";
 
         private static string replaceBadString(string input)
         {

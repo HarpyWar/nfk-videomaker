@@ -71,7 +71,12 @@ namespace ndmscheduler
 
             // read map width/height and set followplayer
             var ndm = new nfklib.NDemo.NFKDemo();
-            var dem = ndm.Read(demoFile);
+            nfklib.NDemo.DemoItem dem = null;
+            try
+            {
+                dem = ndm.Read(demoFile);
+            }
+            catch { }
             if (dem == null)
             {
                 Log.Error("Bad nfk demo");

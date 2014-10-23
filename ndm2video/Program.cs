@@ -89,7 +89,7 @@ writeconfig pid.cfg
             File.WriteAllText(autoexecFile, sb.ToString());
 
 
-            Log.Info("Starting nfk process: ");
+            Log.Info("Starting game process: " + Config.Data.GameExeFile);
             if (!File.Exists(Config.Data.GameExeFile))
             {
                 Log.Error("Exe file does not exist");
@@ -205,9 +205,13 @@ writeconfig pid.cfg
 
                 if (Config.PlayerNumber > 0)
                 {
+                    // I don't know why but it should be this!
+                    int startPlayerNumber = (Config.Data.ParallelEncoding) ? 0 : 1;
                     // switch player camera
-                    for (int i = 0; i < Config.PlayerNumber; i++)
+                    for (int i = startPlayerNumber; i < Config.PlayerNumber; i++)
+                    {
                         NfkSendKey("n");
+                    }
                 }
                 Thread.Sleep(1000);
 
@@ -341,12 +345,20 @@ writeconfig pid.cfg
                 if (ex != null)
                     ex.Dispose();
 
-                Common.freeHangProcesses();
+                if (Config.Data.ParallelEncoding)
+                    Common.freeHangProcesses();
             }
             catch(Exception e)
             {
                 Log.Error(e.Message);
             }
+        }
+
+        internal static bool IsNFKRunning()
+        {
+            if (nfkProcess != null && !nfkProcess.HasExited)
+                return true;
+            return false;
         }
     }
 }

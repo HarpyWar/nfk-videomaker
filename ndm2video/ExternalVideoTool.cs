@@ -59,6 +59,10 @@ namespace ndm2video
                     _process.ProcessorAffinity = (IntPtr)affinity;
                 _process.PriorityClass = (ProcessPriorityClass)Config.Data.ExternalToolRoundTrip[roundNumber].ProcessorPriority;
             }
+            
+            // only when ParallelEncoding is disabled
+            if (roundNumber > 0)
+                return;
 
             // start auto-exit timer with interval of game duration
             externalToolTimer = new System.Timers.Timer() { Interval = (Config.DemoDuration + Config.Data.ExtraTime) * 1000 };
@@ -92,8 +96,8 @@ namespace ndm2video
         private void externalToolProcess_Exited(object sender, EventArgs e)
         {
             // last round
-            if (Config.Data.ParallelEncoding)
-            if (this.roundNumber == Config.Data.ExternalToolRoundTrip.Length - 1)
+            if (!Config.Data.ParallelEncoding)
+            if (this.roundNumber >= Config.Data.ExternalToolRoundTrip.Length - 1)
             {
                 Program.endMovieCreation();
             }
